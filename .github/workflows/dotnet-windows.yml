@@ -27,4 +27,4 @@ jobs:
  
     - name: Build Teams-Assistant Project
       run: dotnet build --configuration Release
-      working-directory: teams-assistant
+      working-directory: teams-aissistant
