@@ -28,3 +28,32 @@ jobs:
     - name: Build Teams-Assistant Project
       run: dotnet build --configuration Release
       working-directory: teams-aissistant
+
+    - name: dotnet publish
+      run: dotnet publish -c Release -o ./publish
+
+    - name: Upload artifact for deployment job
+      uses: actions/upload-artifact@v3
+      with:
+        name: teams-aissistant
+        path: ./publish
+
+  deploy:
+    runs-on: windows-latest
+    needs: build
+    environment:
+      name: 'production'
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v3
+        with:
+          name: teams-aissistant
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ secrets.AzureAppService_bot1Name }} 
+          package: .
+          publish-profile: ${{ secrets.AzureAppService_PublishProfile_a73017872a0e454eb47ee459a6fe629a }}
+
