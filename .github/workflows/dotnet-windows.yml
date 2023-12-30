@@ -38,6 +38,7 @@ jobs:
       with:
         name: teams-aissistant
         path: ./publish
+        working-directory: teams-aissistant        
 
   deploy:
     runs-on: windows-latest
@@ -50,6 +51,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: teams-aissistant
+          path: ./publish
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
