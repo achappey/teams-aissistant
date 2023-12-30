@@ -1,0 +1,30 @@
+name: .NET 7 Build on Windows
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '7.0.x'
+
+    - uses: actions/checkout@v2
+      with:
+        repository: 'achappey/teams-ai'
+        path: 'teams-ai'
+
+    - uses: actions/checkout@v2
+      with:
+        path: 'teams-aissistant'
+
+    - name: Build Teams-AI Project
+      run: dotnet build dotnet/packages/Microsoft.TeamsAI/ --configuration Release
+      working-directory: teams-ai
+ 
+    - name: Build Teams-Assistant Project
+      run: dotnet build --configuration Release
+      working-directory: teams-assistant
