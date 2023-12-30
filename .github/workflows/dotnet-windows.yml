@@ -30,7 +30,7 @@ jobs:
       working-directory: teams-aissistant
 
     - name: dotnet publish
-      run: dotnet publish -c Release -o ./publish
+      run: dotnet publish teams-aissistant/AIssistant.csproj -c Release -o ./publish
       working-directory: teams-aissistant
 
     - name: Upload artifact for deployment job
