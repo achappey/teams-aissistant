@@ -31,6 +31,7 @@ jobs:
 
     - name: dotnet publish
       run: dotnet publish -c Release -o ./publish
+      working-directory: teams-aissistant
 
     - name: Upload artifact for deployment job
       uses: actions/upload-artifact@v3
