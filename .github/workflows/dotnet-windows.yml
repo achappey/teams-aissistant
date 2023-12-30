@@ -37,8 +37,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: teams-aissistant
-        path: ./publish
-        working-directory: teams-aissistant        
+        path: teams-aissistant/publish
 
   deploy:
     runs-on: windows-latest
