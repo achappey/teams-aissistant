@@ -1,0 +1,252 @@
+{
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "emphasis",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${botName}",
+                  "size": "large",
+                  "weight": "bolder"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "FactSet",
+      "facts": [
+        {
+          "title": "${assistantText}",
+          "value": "${assistant.name}"
+        },
+        {
+          "title": "Model",
+          "value": "${model}"
+        },
+        {
+          "title": "${toolsText}",
+          "value": "${selectedToolNames}",
+          "$when": "${selectedToolNames != null}"
+        },
+        {
+          "title": "${toolsText}",
+          "value": "${noToolsText}",
+          "$when": "${selectedToolNames == null}"
+        },
+        {
+          "title": "${additionalInstructionsText}",
+          "value": "${yesText}",
+          "$when": "${hasAdditionalInstructions}"
+        },
+        {
+          "title": "${additionalInstructionsText}",
+          "value": "${noText}",
+          "$when": "${!hasAdditionalInstructions}"
+        },
+        {
+          "title": "${messagesText}",
+          "value": "${messageCount}"
+        },
+        {
+          "title": "${usageText}",
+          "value": "${usage}"
+        },
+        {
+          "title": "${filesText}",
+          "value": "${fileCount}",
+          "$when": "${fileCount > 0}"
+        },
+        {
+          "title": "${filesText}",
+          "value": "${noFilesText}",
+          "$when": "${fileCount == 0}"
+        },
+        {
+          "title": "${pluginsText}",
+          "value": "${activePlugins}",
+          "$when": "${activePlugins != null}"
+        },
+        {
+          "title": "${pluginsText}",
+          "value": "${noPluginsText}",
+          "$when": "${activePlugins == null}"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "${assistantText}",
+      "data": { "verb": "Assistant" }
+    },
+    {
+      "type": "Action.Submit",
+      "title": "${filesText}",
+      "data": { "verb": "Files" }
+    },
+    {
+      "type": "Action.ShowCard",
+      "title": "${pluginsText}",
+      "card": {
+        "type": "AdaptiveCard",
+        "version": "1.5",
+        "body": [
+          {
+            "type": "Input.ChoiceSet",
+            "id": "Plugins",
+            "label": "${pluginsText} (${experimentalText})",
+            "choices": "${selectablePlugins}",
+            "value": "${selectedConversationPlugins}",
+            "isMultiSelect": true,
+            "style": "filtered"
+          },
+          {
+            "type": "Input.Toggle",
+            "id": "ExportFunctionOutput",
+            "label": "${exportPluginOutputText}",
+            "value": "${exportFunctionOutput}"
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.Submit",
+            "title": "${saveText}",
+            "data": { "verb": "UpdatePlugins" }
+          }
+        ]
+      },
+      "$when": "${isAuthenticated}"
+    },
+    {
+      "type": "Action.Submit",
+      "title": "${exportText}",
+      "data": { "verb": "Export" },
+      "$when": "${isAuthenticated}"
+    },
+    {
+      "type": "Action.ShowCard",
+      "title": "${settingsText}",
+      "card": {
+        "type": "AdaptiveCard",
+        "version": "1.5",
+        "body": [
+          {
+            "type": "Input.ChoiceSet",
+            "id": "AssistantId",
+            "label": "${assistantText}",
+            "choices": "${assistants}",
+            "value": "${assistant.id}",
+            "style": "compact"
+          },
+          {
+            "type": "Input.ChoiceSet",
+            "id": "ModelId",
+            "label": "Model",
+            "choices": [
+              {
+                "title": "gpt-3.5-turbo",
+                "value": "gpt-3.5-turbo-1106"
+              },
+              {
+                "title": "gpt-4-turbo-preview",
+                "value": "gpt-4-turbo-preview"
+              }
+            ],
+            "value": "${model}",
+            "style": "compact"
+          },
+          {
+            "type": "Input.ChoiceSet",
+            "id": "Tools",
+            "label": "${toolsText}",
+            "choices": [
+              {
+                "title": "${retrievalText}",
+                "value": "retrieval"
+              },
+              {
+                "title": "${codeInterpreterText}",
+                "value": "code_interpreter"
+              }
+            ],
+            "value": "${selectedToolValues}",
+            "isMultiSelect": true,
+            "style": "compact"
+          },
+          {
+            "type": "Input.Text",
+            "id": "AdditionalInstructionsId",
+            "value": "${additionalInstructions}",
+            "spacing": "large",
+            "separator": true,
+            "label": "${additionalInstructionsText}",
+            "placeholder": "${additionalInstructionsPlaceholderText}",
+            "isMultiline": true
+          },
+          {
+            "type": "ColumnSet",
+            "columns": [
+              {
+                "width": "auto",
+                "items": [
+                  {
+                    "type": "Input.Toggle",
+                    "id": "PrependDateTime",
+                    "label": "${appendDateTimeText}",
+                    "value": "${prependDateTime}"
+                  }
+                ]
+              },
+              {
+                "width": "auto",
+                "items": [
+                  {
+                    "type": "Input.Toggle",
+                    "id": "PrependUsername",
+                    "label": "${appendUserNameText}",
+                    "value": "${prependUsername}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Input.Toggle",
+            "id": "ExportToolCalls",
+            "value": "${exportToolCalls}",
+            "spacing": "large",
+            "separator": true,
+            "label": "${exportToolCallsText}"
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.Submit",
+            "title": "${saveText}",
+            "data": { "verb": "UpdateConversation" }
+          },
+          {
+            "type": "Action.Submit",
+            "title": "${resetConversationText}",
+            "data": { "verb": "ClearConversation" }
+          }
+        ]
+      },
+      "$when": "${isAuthenticated}"
+    }
+  ]
+}

@@ -1,13 +1,14 @@
 ﻿using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Builder.TraceExtensions;
 using Microsoft.Bot.Connector.Authentication;
+using Microsoft.Teams.AI;
 
-namespace MathBot
+namespace TeamsAIssistant
 {
-    public class AdapterWithErrorHandler : CloudAdapter
+    public class AdapterWithErrorHandler : TeamsAdapter
     {
-        public AdapterWithErrorHandler(BotFrameworkAuthentication auth, ILogger<CloudAdapter> logger)
-            : base(auth, logger)
+        public AdapterWithErrorHandler(IConfiguration configuration, ILogger<TeamsAdapter> logger)
+               : base(configuration, null, logger)
         {
             OnTurnError = async (turnContext, exception) =>
             {

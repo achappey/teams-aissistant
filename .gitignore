@@ -4,9 +4,12 @@ appPackage/build
 env/.env.*.user
 env/.env.dev.user
 env/.env.local
-appsettings.Development.json
+env/.env.dev.*
+env/*.*
+appsettings.Development.*
 .deployment
-appPackage-*/*
+appPackage-*
+appPackage-*/*.*
 
 # User-specific files
 *.user

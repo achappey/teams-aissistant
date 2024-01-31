@@ -1,0 +1,224 @@
+{
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "emphasis",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${filesText}",
+                  "size": "Large",
+                  "weight": "Bolder"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "${assistantName}",
+      "weight": "bolder",
+      "size": "medium"
+    },
+    {
+      "type": "Container",
+      "$when": "${count(assistantFiles) > 0}",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "$data": "${assistantFiles}",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${filename}",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${bytes} bytes",
+                  "wrap": true,
+                  "size": "Small"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${createdAtString}",
+                  "wrap": true,
+                  "size": "Small"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "$when": "${$root.isAssistantOwner}",
+              "items": [
+                {
+                  "type": "ActionSet",
+                  "actions": [
+                    {
+                      "type": "Action.Submit",
+                      "title": "${$root.deleteText}",
+                      "data": {
+                        "verb": "DeleteAssistantFile",
+                        "FileId": "${id}"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "${noFilesText}",
+      "wrap": true,
+      "$when": "${count(assistantFiles) == 0}"
+    },
+    {
+      "type": "TextBlock",
+      "text": "${conversationText}",
+      "weight": "bolder",
+      "size": "medium",
+      "$when": "${showConversationFiles}"
+    },
+    {
+      "type": "Container",
+      "$when": "${count(conversationFiles) > 0 && showConversationFiles}",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "$data": "${conversationFiles}",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${filename}",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${bytes} bytes",
+                  "wrap": true,
+                  "size": "Small"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${createdAtString}",
+                  "wrap": true,
+                  "size": "Small"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "ActionSet",
+                  "actions": [
+                    {
+                      "type": "Action.Submit",
+                      "title": "${$root.deleteText}",
+                      "data": {
+                        "verb": "DeleteFile",
+                        "FileId": "${id}"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "${noFilesText}",
+      "wrap": true,
+      "$when": "${count(conversationFiles) == 0}"
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.ShowCard",
+      "$when": "${count(conversationFiles) > 0}",
+      "title": "${attachToAssistantText}",
+      "card": {
+        "type": "AdaptiveCard",
+        "version": "1.5",
+        "body": [
+          {
+            "type": "Input.ChoiceSet",
+            "id": "FileIds",
+            "label": "${conversationFilesText}",
+            "isRequired": true,
+            "isMultiSelect": true,
+            "style": "compact",
+            "choices": [
+              {
+                "$data": "${conversationFiles}",
+                "title": "${filename}",
+                "value": "${id}"
+              }
+            ]
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.Submit",
+            "title": "${saveText}",
+            "data": {
+              "verb": "FileToAssistant"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

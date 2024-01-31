@@ -6,25 +6,17 @@ namespace MathBot.Controllers
 {
     [Route("api/messages")]
     [ApiController]
-    public class BotController : ControllerBase
+    public class BotController(IBotFrameworkHttpAdapter adapter, IBot bot) : ControllerBase
     {
-        private readonly CloudAdapter _adapter;
-        private readonly IBot _bot;
-
-        public BotController(CloudAdapter adapter, IBot bot)
-        {
-            _adapter = adapter;
-            _bot = bot;
-        }
-
+        
         [HttpPost]
         public async Task PostAsync(CancellationToken cancellationToken = default)
         {
-            await _adapter.ProcessAsync
+            await adapter.ProcessAsync
             (
                 Request,
                 Response,
-                _bot,
+                bot,
                 cancellationToken
             );
         }

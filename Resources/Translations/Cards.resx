@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="AssistantText" xml:space="preserve">
+    <value>Assistant</value>
+  </data>  
+  <data name="SaveText" xml:space="preserve">
+    <value>Save</value>
+  </data>  
+  <data name="NoToolsText" xml:space="preserve">
+    <value>No tools</value>
+  </data>  
+  <data name="ResetConversationText" xml:space="preserve">
+    <value>Reset conversation</value>
+  </data>  
+  <data name="AppendDateTimeText" xml:space="preserve">
+    <value>Append current date &amp; time</value>
+  </data> 
+  <data name="AppendUserNameText" xml:space="preserve">
+    <value>Append username</value>
+  </data> 
+  <data name="OrganizationText" xml:space="preserve">
+    <value>Organization</value>
+  </data> 
+  <data name="UsageText" xml:space="preserve">
+    <value>Usage</value>
+  </data> 
+  <data name="AttachToAssistantText" xml:space="preserve">
+    <value>Attach to assistant</value>
+  </data>  
+  <data name="NoTeamText" xml:space="preserve">
+    <value>No team</value>
+  </data> 
+  <data name="RetrievalText" xml:space="preserve">
+    <value>Document reader (Word, PDF)</value>
+  </data> 
+   <data name="CodeInterpreterText" xml:space="preserve">
+    <value>Code interpreter (Excel, CSV)</value>
+  </data> 
+  <data name="ConversationText" xml:space="preserve">
+    <value>Conversation</value>
+  </data>  
+  <data name="AdditionalInstructionsPlaceholderText" xml:space="preserve">
+    <value>Append additional instructions at the end of the instructions for the conversation. This is useful for modifying the behavior during the conversation without overriding other instructions.</value>
+  </data> 
+  <data name="YesText" xml:space="preserve">
+    <value>Yes</value>
+  </data> 
+  <data name="NoText" xml:space="preserve">
+    <value>No</value>
+  </data> 
+    <data name="ExportPluginOutputText" xml:space="preserve">
+    <value>Export plugin output to Excel</value>
+  </data>
+  <data name="ConversationFilesText" xml:space="preserve">
+    <value>Conversation files</value>
+  </data> 
+  <data name="FileNameText" xml:space="preserve">
+    <value>Filename</value>
+  </data> 
+  <data name="OpenFileText" xml:space="preserve">
+    <value>Open file</value>
+  </data> 
+  <data name="FileText" xml:space="preserve">
+    <value>File</value>
+  </data> 
+  <data name="ExperimentalText" xml:space="preserve">
+    <value>experimental</value>
+  </data>
+  <data name="FilesText" xml:space="preserve">
+    <value>Files</value>
+  </data>
+  <data name="NoFilesText" xml:space="preserve">
+    <value>No files</value>
+  </data>
+  <data name="MessagesText" xml:space="preserve">
+    <value>Messages</value>
+  </data>
+  <data name="AdditionalInstructionsText" xml:space="preserve">
+    <value>Additional instructions</value>
+  </data>
+  <data name="SettingsText" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="PluginsText" xml:space="preserve">
+    <value>Plugins</value>
+  </data>
+  <data name="ExportText" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="ExportToolCallsText" xml:space="preserve">
+    <value>Export code interpreter logs</value>
+  </data>
+  <data name="ToolsText" xml:space="preserve">
+    <value>Tools</value>
+  </data>
+  <data name="AddExcelToChatText" xml:space="preserve">
+    <value>Add Excel to converation</value>
+  </data>
+  <data name="OpenInExcelText" xml:space="preserve">
+    <value>Open in Excel</value>
+  </data>  
+  <data name="EditText" xml:space="preserve">
+    <value>Edit</value>
+  </data>  
+  <data name="CloneText" xml:space="preserve">
+    <value>Clone</value>
+  </data>  
+  <data name="DeleteText" xml:space="preserve">
+    <value>Delete</value>
+  </data>  
+  <data name="InstructionsText" xml:space="preserve">
+    <value>Instructions</value>
+  </data>  
+   <data name="OwnersText" xml:space="preserve">
+    <value>Owners</value>
+  </data>  
+  <data name="YesDeleteAssistantText" xml:space="preserve">
+    <value>Yes, delete assistant</value>
+  </data>  
+  <data name="AreYouSureText" xml:space="preserve">
+    <value>Are you sure? It cannot be undone.</value>
+  </data>  
+  <data name="AdvancedText" xml:space="preserve">
+    <value>advanced</value>
+  </data>  
+   <data name="NoPluginsText" xml:space="preserve">
+    <value>No plugins</value>
+  </data>  
+  <data name="CreatedAtText" xml:space="preserve">
+    <value>Created at</value>
+  </data>  
+   <data name="DescriptionText" xml:space="preserve">
+    <value>Description</value>
+  </data>  
+   <data name="VisibilityText" xml:space="preserve">
+    <value>Visibility</value>
+  </data> 
+   <data name="NameText" xml:space="preserve">
+    <value>Name</value>
+  </data> 
+</root>

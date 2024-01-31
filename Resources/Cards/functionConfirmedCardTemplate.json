@@ -1,0 +1,49 @@
+{
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "emphasis",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${header}",
+                  "size": "large",
+                  "weight": "bolder"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "${subTitle}",
+                  "size": "Small",
+                  "$when": "${subTitle != null}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "FactSet",
+      "facts": [
+        {
+          "$data": "${parameters}",
+          "title": "${key}",
+          "value": "${value}"
+        },
+        {
+          "title": "Submitted",
+          "value": "${submitted}"
+        }
+      ]
+    }
+  ]
+}

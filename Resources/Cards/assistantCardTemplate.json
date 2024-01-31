@@ -1,0 +1,287 @@
+{
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "emphasis",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${assistant.name}",
+                  "size": "large",
+                  "weight": "bolder"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "${description}",
+                  "size": "Small",
+                  "$when": "${assistant.description != null}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "FactSet",
+      "facts": [
+        {
+          "title": "Model",
+          "value": "${assistant.model}"
+        },
+        {
+          "title": "${visibilityText}",
+          "value": "${selectedVisibilityName}"
+        },
+        {
+          "title": "${ownersText}",
+          "value": "${ownerNames}",
+          "$when": "${ownerNames != null}"
+        },
+        {
+          "title": "Team",
+          "value": "${teamName}",
+          "$when": "${teamName != null && visibility == 'Team'}"
+        },
+        {
+          "title": "Team",
+          "value": "${noTeamText}",
+          "$when": "${teamName == null && visibility == 'Team'}"
+        },
+        {
+          "title": "${toolsText}",
+          "value": "${selectedToolNames}",
+          "$when": "${selectedToolNames != null}"
+        },
+        {
+          "title": "${toolsText}",
+          "value": "${noToolsText}",
+          "$when": "${selectedToolNames == null}"
+        },
+        {
+          "title": "${filesText}",
+          "value": "${FileCountText}",
+          "$when": "${fileCount > 0}"
+        },
+        {
+          "title": "${filesText}",
+          "value": "${noFilesText}",
+          "$when": "${fileCount == 0}"
+        },
+        {
+          "title": "${pluginsText}",
+          "value": "${plugins}",
+          "$when": "${plugins != null}"
+        },
+        {
+          "title": "${pluginsText}",
+          "value": "${noPluginsText}",
+          "$when": "${plugins == null}"
+        },
+        {
+          "title": "${createdAtText}",
+          "value": "${createdAt}"
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "${instructionsText}",
+      "size": "Default",
+      "weight": "Bolder"
+    },
+    {
+      "type": "TextBlock",
+      "text": "${assistant.instructions}",
+      "wrap": true
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.ShowCard",
+      "title": "${editText}",
+      "$when": "${isOwner}",
+      "card": {
+        "type": "AdaptiveCard",
+        "version": "1.5",
+        "body": [
+          {
+            "type": "Input.Text",
+            "id": "AssistantId",
+            "value": "${assistant.id}",
+            "isVisible": false,
+            "isRequired": true
+          },
+          {
+            "type": "Input.Text",
+            "id": "NameId",
+            "value": "${assistant.name}",
+            "maxLength": 256,
+            "label": "${nameText}",
+            "isRequired": true
+          },
+          {
+            "type": "Input.Text",
+            "id": "DescriptionId",
+            "value": "${description}",
+            "label": "${descriptionText}",
+            "placeholder": "Assistant description",
+            "maxLength": 512,
+            "isMultiline": true
+          },
+          {
+            "type": "Input.ChoiceSet",
+            "id": "ModelId",
+            "choices": [
+              {
+                "title": "gpt-3.5-turbo",
+                "value": "gpt-3.5-turbo-1106"
+              },
+              {
+                "title": "gpt-4-turbo-preview",
+                "value": "gpt-4-turbo-preview"
+              }
+            ],
+            "isRequired": true,
+            "label": "Model",
+            "value": "${assistant.model}",
+            "style": "Compact"
+          },
+          {
+            "type": "Input.ChoiceSet",
+            "id": "Visibility",
+            "choices": [
+              {
+                "title": "${organizationText}",
+                "value": "Organization"
+              },
+              {
+                "title": "${ownersText}",
+                "value": "Owners"
+              },
+              {
+                "title": "Team",
+                "value": "Team"
+              }
+            ],
+            "label": "${visibilityText}",
+            "isRequired": true,
+            "value": "${visibility}",
+            "style": "Compact"
+          },
+          {
+            "type": "Input.ChoiceSet",
+            "id": "Team",
+            "choices": "${teamChoices}",
+            "label": "Team",
+            "value": "${selectedTeam}",
+            "style": "Compact",
+            "isVisible": "${visibility == 'Team'}"
+          },
+          {
+            "type": "Input.ChoiceSet",
+            "id": "Tools",
+            "choices": [
+              {
+                "title": "${retrievalText}",
+                "value": "retrieval"
+              },
+              {
+                "title": "${codeInterpreterText}",
+                "value": "code_interpreter"
+              }
+            ],
+            "label": "${toolsText}",
+            "value": "${selectedToolValues}",
+            "isMultiSelect": true,
+            "style": "Compact"
+          },
+          {
+            "type": "Input.ChoiceSet",
+            "id": "Plugins",
+            "choices": "${pluginChoices}",
+            "label": "${pluginsText} (${experimentalText})",
+            "isMultiSelect": true,
+            "value": "${plugins}",
+            "style": "filtered"
+          },
+          {
+            "type": "Input.Text",
+            "id": "InstructionId",
+            "isRequired": true,
+            "label": "${instructionsText}",
+            "value": "${assistant.instructions}",
+            "placeholder": "Assistant instructions",
+            "maxLength": 32768,
+            "isMultiline": true
+          },
+          {
+            "type": "Input.Text",
+            "id": "MetadataId",
+            "separator": true,
+            "spacing": "Large",
+            "isRequired": true,
+            "label": "Metadata (${advancedText})",
+            "value": "${metadata}",
+            "isMultiline": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.Submit",
+            "title": "${saveText}",
+            "data": { "verb": "UpdateAssistant" }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Action.Submit",
+      "title": "${cloneText}",
+      "$when": "${isAuthenticated}",
+      "data": {
+        "verb": "CloneAssistant",
+        "AssistantId": "${assistant.id}"
+      }
+    },
+    {
+      "type": "Action.ShowCard",
+      "title": "${deleteText}",
+      "$when": "${isOwner}",
+      "card": {
+        "type": "AdaptiveCard",
+        "version": "1.5",
+        "body": [
+          {
+            "type": "Input.Text",
+            "id": "DeleteAssistantId",
+            "value": "${assistant.id}",
+            "isVisible": false,
+            "spacing": "Large",
+            "isRequired": true
+          },
+          {
+            "type": "TextBlock",
+            "text": "${areYouSureText}"
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.Submit",
+            "title": "${yesDeleteAssistantText}",
+            "data": { "verb": "DeleteAssistant" }
+          }
+        ]
+      }
+    }
+  ]
+}

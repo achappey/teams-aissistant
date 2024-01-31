@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="FilesText" xml:space="preserve">
+    <value>Bestanden</value>
+  </data>
+  <data name="SaveText" xml:space="preserve">
+    <value>Opslaan</value>
+  </data>  
+  <data name="AttachToAssistantText" xml:space="preserve">
+    <value>Toevoegen aan assistent</value>
+  </data>  
+  <data name="OrganizationText" xml:space="preserve">
+    <value>Organisatie</value>
+  </data> 
+  <data name="ResetConversationText" xml:space="preserve">
+    <value>Conversatie resetten</value>
+  </data>  
+  <data name="RetrievalText" xml:space="preserve">
+    <value>Documentlezer (Word, PDF)</value>
+  </data> 
+   <data name="CodeInterpreterText" xml:space="preserve">
+    <value>Scriptverwerker (Excel, CSV)</value>
+  </data> 
+  <data name="ConversationText" xml:space="preserve">
+    <value>Conversatie</value>
+  </data>  
+  <data name="UsageText" xml:space="preserve">
+    <value>Verbruik</value>
+  </data> 
+  <data name="AppendUserNameText" xml:space="preserve">
+    <value>Voeg gebruikersnaam toe</value>
+  </data> 
+  <data name="AppendDateTimeText" xml:space="preserve">
+    <value>Voeg huidige datum en tijd toe</value>
+  </data> 
+  <data name="ExportPluginOutputText" xml:space="preserve">
+    <value>Exporteer plug-in uitvoer naar Excel</value>
+  </data>
+  <data name="ExperimentalText" xml:space="preserve">
+    <value>experimenteel</value>
+  </data>
+  <data name="AssistantText" xml:space="preserve">
+    <value>Assistent</value>
+  </data>
+  <data name="MessagesText" xml:space="preserve">
+    <value>Berichten</value>
+  </data>
+  <data name="AdditionalInstructionsText" xml:space="preserve">
+    <value>Aanvullende instructies</value>
+  </data>
+  <data name="SettingsText" xml:space="preserve">
+    <value>Instellingen</value>
+  </data>
+  <data name="PluginsText" xml:space="preserve">
+    <value>Plug-ins</value>
+  </data>
+  <data name="ExportText" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="ExportToolCallsText" xml:space="preserve">
+    <value>Exporteer scriptverwerker logboeken</value>
+  </data>
+  <data name="ToolsText" xml:space="preserve">
+    <value>Hulpmiddelen</value>
+  </data>
+  <data name="NoToolsText" xml:space="preserve">
+    <value>Geen hulpmiddelen</value>
+  </data> 
+  <data name="AddExcelToChatText" xml:space="preserve">
+    <value>Voeg Excel toe aan conversatie</value>
+  </data>
+  <data name="OpenInExcelText" xml:space="preserve">
+    <value>Openen in Excel</value>
+  </data>  
+  <data name="NoTeamText" xml:space="preserve">
+    <value>Geen team</value>
+  </data> 
+  <data name="YesText" xml:space="preserve">
+    <value>Ja</value>
+  </data> 
+  <data name="NoText" xml:space="preserve">
+    <value>Nee</value>
+  </data> 
+  <data name="ConversationFilesText" xml:space="preserve">
+    <value>Conversatie bestanden</value>
+  </data> 
+  <data name="FileNameText" xml:space="preserve">
+    <value>Bestandsnaam</value>
+  </data> 
+  <data name="OpenFileText" xml:space="preserve">
+    <value>Open bestand</value>
+  </data> 
+  <data name="FileText" xml:space="preserve">
+    <value>Bestand</value>
+  </data> 
+  <data name="NoFilesText" xml:space="preserve">
+    <value>Geen bestanden</value>
+  </data>  
+  <data name="AdditionalInstructionsPlaceholderText" xml:space="preserve">
+    <value>Voeg aanvullende instructies toe aan het einde van de instructies voor het gesprek. Dit is handig om het gedrag tijdens het gesprek te wijzigen zonder andere instructies te negeren.</value>
+  </data> 
+  <data name="EditText" xml:space="preserve">
+    <value>Wijzigen</value>
+  </data>  
+  <data name="CloneText" xml:space="preserve">
+    <value>Kloon</value>
+  </data>  
+  <data name="DeleteText" xml:space="preserve">
+    <value>Verwijderen</value>
+  </data>  
+   <data name="NoPluginsText" xml:space="preserve">
+    <value>Geen plugins</value>
+  </data>  
+  <data name="CreatedAtText" xml:space="preserve">
+    <value>Gemaakt op</value>
+  </data>  
+ <data name="OwnersText" xml:space="preserve">
+    <value>Eigenaren</value>
+  </data>   
+  <data name="YesDeleteAssistantText" xml:space="preserve">
+    <value>Ja, verwijder assistent</value>
+  </data>  
+   <data name="AreYouSureText" xml:space="preserve">
+    <value>Weet je het zeker? Het kan niet ongedaan gemaakt worden.</value>
+  </data> 
+  <data name="AdvancedText" xml:space="preserve">
+    <value>geavanceerd</value>
+  </data> 
+  <data name="InstructionsText" xml:space="preserve">
+    <value>Instructies</value>
+  </data>  
+   <data name="DescriptionText" xml:space="preserve">
+    <value>Beschrijving</value>
+  </data>  
+   <data name="VisibilityText" xml:space="preserve">
+    <value>Zichtbaarheid</value>
+  </data>  
+   <data name="NameText" xml:space="preserve">
+    <value>Naam</value>
+  </data> 
+</root>

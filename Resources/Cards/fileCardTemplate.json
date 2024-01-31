@@ -1,0 +1,53 @@
+{
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "emphasis",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${fileText}",
+                  "size": "Large",
+                  "weight": "Bolder"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "${filename}",
+                  "size": "Small",
+                  "$when": "${filename != null}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "type": "FactSet",
+      "facts": [
+        {
+          "$when": "${status != null}",
+          "title": "Status",
+          "value": "${status}"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "url": "${url}",
+      "title": "${openFileText}"
+    }
+  ]
+}
