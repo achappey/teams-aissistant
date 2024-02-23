@@ -1,12 +1,11 @@
 ﻿using TeamsAIssistant.Services;
-using TeamsAIssistant.Extensions;
 using TeamsAIssistant.State;
 using Newtonsoft.Json;
 using Microsoft.Bot.Builder;
 using TeamsAIssistant.Repositories;
 using OpenAI.Managers;
 
-namespace TeamsAIssistant.Handlers.Plugins.Graph
+namespace TeamsAIssistant.Handlers.Plugins.AI
 {
     public abstract class OpenAIBasePlugin(OpenAIService openAIService,
         ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, string name) 

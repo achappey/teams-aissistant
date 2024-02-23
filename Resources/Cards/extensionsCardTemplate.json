@@ -1,0 +1,282 @@
+{
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "emphasis",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${extensionsText} (${experimentalText})",
+                  "size": "large",
+                  "weight": "bolder"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "FactSet",
+      "facts": [
+        {
+          "title": "${pluginsText}",
+          "value": "${activePlugins}",
+          "$when": "${activePlugins != null}"
+        },
+        {
+          "title": "${pluginsText}",
+          "value": "${noPluginsText}",
+          "$when": "${activePlugins == null}"
+        },
+        {
+          "title": "${kernelMemoryText}",
+          "value": "${selectedSources}",
+          "$when": "${hasSources}"
+        },
+        {
+          "title": "${kernelMemoryText}",
+          "value": "${noSourceText}",
+          "$when": "${!hasSources}"
+        },
+        {
+          "title": "${filterText}",
+          "value": "${filterCount}",
+          "$when": "${hasFilters}"
+        },
+        {
+          "title": "${filterText}",
+          "value": "${noFilterText}",
+          "$when": "${!hasFilters}"
+        },
+        {
+          "title": "${minRelevanceText}",
+          "value": "${minRelevance}"
+        },
+        {
+          "title": "${additionalInstructionsContextText}",
+          "value": "${yesText}",
+          "$when": "${additionalInstructionsContext}"
+        },
+        {
+          "title": "${additionalInstructionsContextText}",
+          "value": "${noText}",
+          "$when": "${!additionalInstructionsContext}"
+        }
+
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.ShowCard",
+      "title": "${pluginsText}",
+      "card": {
+        "type": "AdaptiveCard",
+        "version": "1.5",
+        "body": [
+          {
+            "type": "Input.ChoiceSet",
+            "id": "Plugins",
+            "label": "${pluginsText}",
+            "choices": "${selectablePlugins}",
+            "value": "${selectedConversationPlugins}",
+            "isMultiSelect": true,
+            "style": "filtered"
+          },
+          {
+            "type": "Input.Toggle",
+            "id": "ExportFunctionOutput",
+            "label": "${exportPluginOutputText}",
+            "value": "${exportFunctionOutput}"
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.Submit",
+            "title": "${saveText}",
+            "data": { "verb": "UpdatePlugins" }
+          }
+        ]
+      },
+      "$when": "${isAuthenticated}"
+    },
+    {
+      "type": "Action.ShowCard",
+      "title": "${kernelMemoryText}",
+      "card": {
+        "type": "AdaptiveCard",
+        "version": "1.5",
+        "body": [
+          {
+            "type": "TextBlock",
+            "text": "${sourceText}",
+            "weight": "bolder"
+          },
+          {
+            "type": "Input.ChoiceSet",
+            "id": "Sites",
+            "label": "${sitesText}",
+            "choices": "${siteChoices}",
+            "value": "${selectedSites}",
+            "isMultiSelect": true,
+            "style": "filtered"
+          },
+          {
+            "type": "Input.ChoiceSet",
+            "id": "Teams",
+            "label": "${teamsText}",
+            "choices": "${teamChoices}",
+            "value": "${selectedTeams}",
+            "isMultiSelect": true,
+            "style": "filtered"
+          },
+          {
+            "type": "Input.ChoiceSet",
+            "id": "Simplicate",
+            "label": "Simplicate",
+            "choices": [
+              {
+                "title": "CRM",
+                "value": "crm"
+              },
+              {
+                "title": "HRM",
+                "value": "hrm"
+              },
+              {
+                "title": "${projectsText}",
+                "value": "projects"
+              }
+            ],
+            "value": "${selectedSimplicateModules}",
+            "isMultiSelect": true,
+            "style": "filtered"
+          },
+          {
+            "type": "TextBlock",
+            "text": "Filters",
+            "separator": true,
+            "spacing": "large",
+            "weight": "bolder"
+          },
+          {
+            "type": "Input.ChoiceSet",
+            "id": "Years",
+            "label": "${createdYearText}",
+            "choices": "${yearChoices}",
+            "value": "${selectedYears}",
+            "isMultiSelect": true,
+            "style": "compact"
+          },
+          {
+            "type": "Input.ChoiceSet",
+            "id": "Types",
+            "label": "Types",
+            "choices": [
+              {
+                "title": "${driveItemText}",
+                "value": "DriveItem"
+              },
+              {
+                "title": "${sitePageText}",
+                "value": "SitePage"
+              },
+              {
+                "title": "${listItemText}",
+                "value": "ListItem"
+              },
+              {
+                "title": "${channelMessageText}",
+                "value": "ChannelMessage"
+              }
+            ],
+            "value": "${selectedTypes}",
+            "isMultiSelect": true,
+            "style": "compact"
+          },
+          {
+            "type": "TextBlock",
+            "separator": true,
+            "spacing": "large",
+            "text": "${optionsText}",
+            "weight": "bolder"
+          },
+          {
+            "type": "Input.ChoiceSet",
+            "id": "MinRelevance",
+            "required": true,
+            "label": "${minRelevanceText}",
+            "choices": "${minRelevanceChoices}",
+            "value": "${minRelevance}",
+            "style": "compact"
+          },
+          {
+            "type": "Input.ChoiceSet",
+            "id": "ContextLength",
+            "label": "${contextLengthText}",
+            "choices": [
+              {
+                "title": "${shortContextText}",
+                "value": "512"
+              },
+              {
+                "title": "${mediumContextText}",
+                "value": "2048"
+              },
+              {
+                "title": "${longContextText}",
+                "value": "4096"
+              }
+            ],
+            "value": "${contextLength}",
+            "style": "expanded"
+          },
+          {
+            "type": "Input.Toggle",
+            "label": "${additionalInstructionsContextText}",
+            "title": "${additionalInstructionsContextTitleText}",
+            "value": "${additionalInstructionsContext}",
+            "id": "AdditionalInstructionsContext"
+          },
+          {
+            "$when": "${maxCitations != null}",
+            "type": "Input.Number",
+            "id": "MaxCitations",
+            "label": "${maxCitationsText}",
+            "value": "${maxCitations}",
+            "placeholder": "${maxCitationsPlaceholderText}",
+            "min": 0,
+            "max": 10
+          },
+          {
+            "$when": "${maxCitations == null}",
+            "type": "Input.Number",
+            "id": "MaxCitations",
+            "label": "${maxCitationsText}",
+            "placeholder": "${maxCitationsPlaceholderText}",
+            "min": 0,
+            "max": 10
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.Submit",
+            "title": "${saveText}",
+            "data": { "verb": "UpdateKernelMemory" }
+          }
+        ]
+      },
+      "$when": "${isAuthenticated}"
+    }
+  ]
+}

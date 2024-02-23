@@ -120,7 +120,7 @@ namespace TeamsAIssistant.Handlers.Plugins.Graph
                     {
                         Message = new Message
                         {
-                            ToRecipients = toRecipients?.Select(t => t.ToRecipient()).ToList()
+                            ToRecipients = toRecipients?.Select(GraphExtensions.ToRecipient).ToList()
                         },
                         Comment = comment
                     };
@@ -166,8 +166,8 @@ namespace TeamsAIssistant.Handlers.Plugins.Graph
                                 ContentType = Enum.Parse<BodyType>(contentType ?? Enum.GetName(BodyType.Text)!),
                                 Content = content,
                             },
-                            ToRecipients = toRecipients?.Select(t => t.ToRecipient()).ToList(),
-                            CcRecipients = ccRecipients?.Select(t => t.ToRecipient()).ToList() ?? []
+                            ToRecipients = toRecipients?.Select(GraphExtensions.ToRecipient).ToList(),
+                            CcRecipients = ccRecipients?.Select(GraphExtensions.ToRecipient).ToList() ?? []
                         }
                     };
 

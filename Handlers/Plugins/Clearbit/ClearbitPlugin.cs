@@ -8,7 +8,8 @@ using TeamsAIssistant.Attributes;
 
 namespace TeamsAIssistant.Handlers.Plugins.SchoolHolidays
 {
-    public class ClearbitPlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) : PluginBase(driveRepository, proactiveMessageService, "Company Logos", "Clearbit", "Logo API", "v1")
+    public class ClearbitPlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) 
+        : PluginBase(driveRepository, proactiveMessageService, "Company Logos", "Clearbit", "Logo API", "v1")
     {
 
         [Action("Clearbit.GetCompanyLogo")]

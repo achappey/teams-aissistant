@@ -5,12 +5,13 @@ using System.ComponentModel;
 using TeamsAIssistant.Services;
 using TeamsAIssistant.Repositories;
 using TeamsAIssistant.Attributes;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.Governments.NL
 {
-    public class LuchtmeetnetDataPlugin(IHttpClientFactory clientFactory,
+    public class LuchtmeetnetDataPlugin(TeamsAdapter teamsAdapter,
             ProactiveMessageService proactiveMessageService, DriveRepository driveRepository)
-            : LuchtmeetnetBasePlugin(clientFactory, proactiveMessageService, driveRepository, "Data")
+            : LuchtmeetnetBasePlugin(teamsAdapter, proactiveMessageService, driveRepository, "Data")
     {
         [Action("Luchtmeetnet.GetMeasurements")]
         [Description("Gets luchtmeetnet measurements")]

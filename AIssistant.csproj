@@ -13,31 +13,36 @@
 
  <ItemGroup>
     <Reference Include="Microsoft.Teams.AI">
-      <HintPath>..\teams-ai\dotnet\packages\Microsoft.TeamsAI\Microsoft.TeamsAI\bin\Release\netstandard2.0\Microsoft.Teams.AI.dll</HintPath>
+      <HintPath>..\teams-ai\dotnet\packages\Microsoft.TeamsAI\Microsoft.TeamsAI\bin\Debug\netstandard2.0\Microsoft.Teams.AI.dll</HintPath>
     </Reference>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AdaptiveCards.Templating" Version="1.5.0" />
     <PackageReference Include="Azure.AI.ContentSafety" Version="1.0.0-beta.1" />
-    <PackageReference Include="Azure.AI.OpenAI" Version="1.0.0-beta.12" />
+    <PackageReference Include="Azure.AI.OpenAI" Version="1.0.0-beta.13" />
     <PackageReference Include="Azure.Maps.Routing" Version="1.0.0-beta.2" />
     <PackageReference Include="Azure.Maps.Search" Version="1.0.0-beta.4" />
-    <PackageReference Include="Azure.Security.KeyVault.Keys" Version="4.5.0" />
-    <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.5.0" />
+    <PackageReference Include="Azure.Security.KeyVault.Keys" Version="4.6.0" />
+    <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.6.0" />
     <PackageReference Include="AdaptiveCards" Version="3.1.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
-    <PackageReference Include="CsvHelper" Version="30.1.0" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.58" />
+    <PackageReference Include="Azure.Storage.Queues" Version="12.17.1" />
+    <PackageReference Include="CsvHelper" Version="31.0.0" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.59" />
     <PackageReference Include="MailChimp.Net.V3" Version="5.5.0" />
-    <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.22.0" />
-    <PackageReference Include="Microsoft.Bot.Builder.Dialogs" Version="4.22.0" />
-    <PackageReference Include="Microsoft.Graph.Beta" Version="5.63.0-preview" />
-    <PackageReference Include="Microsoft.Identity.Web.TokenCache" Version="2.16.1" />
+    <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.22.2" />
+    <PackageReference Include="Microsoft.Bot.Builder.Dialogs" Version="4.22.2" />
+    <PackageReference Include="Microsoft.Graph.Beta" Version="5.64.0-preview" />
+    <PackageReference Include="Microsoft.Identity.Web.TokenCache" Version="2.17.0" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.59.0" />
-    <PackageReference Include="OpenAI-DotNet" Version="7.6.4" />
-    <PackageReference Include="Betalgo.OpenAI" Version="7.4.4" />
-    <PackageReference Include="RESTCountries.NET" Version="3.0.1" />
+    <PackageReference Include="OpenAI-DotNet" Version="7.7.0" />
+    <PackageReference Include="Betalgo.OpenAI" Version="7.4.6" />
+    <PackageReference Include="RESTCountries.NET" Version="3.1.0" />
+    <PackageReference Include="Microsoft.KernelMemory.AI.OpenAI" Version="0.29.240219.2" />
+    <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.29.240219.2" />
+    <PackageReference Include="SharpToken" Version="1.2.17" />
+    <PackageReference Include="JsonSchema.Net" Version="6.0.3" />
   </ItemGroup>
 
  <ItemGroup>
@@ -50,6 +55,14 @@
   </None>
 </ItemGroup>
 
+<!-- Include prompt as content in build output -->
+  <ItemGroup>
+    <Content Include="Prompts/*/skprompt.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+  
   <!-- Exclude Teams Toolkit files from build output, but can still be viewed from Solution Explorer -->
   <ItemGroup>
     <Content Remove="appPackage/**/*" />

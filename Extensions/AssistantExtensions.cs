@@ -1,14 +1,40 @@
 using System.Text.Json.Nodes;
 using Microsoft.Bot.Schema;
+using Microsoft.Teams.AI.AI.Models;
 using Microsoft.Teams.AI.AI.OpenAI.Models;
 using Newtonsoft.Json;
 using OpenAI.Assistants;
+using OpenAI.Threads;
 using TeamsAIssistant.Constants;
 
 namespace TeamsAIssistant.Extensions
 {
     public static class AssistantExtensions
     {
+        public static string ToEmbeddingsSearch(this Models.Message message)
+        {
+            if (message.Role == ChatRole.User && message.Content.IndexOf("\n\nUser: ") > -1)
+            {
+                return message.Content[(message.Content.IndexOf("\n\nUser: ") + 2)..];
+            }
+
+            return $"{message.Role}: {message.Content}";
+        }
+
+
+        public static Models.Message ToMessage(this MessageResponse response)
+        {
+            return new()
+            {
+                Id = response.Id,
+                CreatedAt = response.CreatedAt,
+                Role = response.Role.ToString(),
+                Content = response.Content != null && response.Content.Where(r => r.Text != null).Any()
+                   ? response.Content.Where(r => r.Text != null)?.FirstOrDefault()?.Text?.Value ?? string.Empty
+                     : string.Empty
+            };
+        }
+
         public static Dictionary<string, object> WithOwner(this Dictionary<string, object> metadata, string? ownerValue)
         {
             return metadata.WithMetadataValue(AssistantMetadata.Owners, ownerValue);
@@ -51,12 +77,23 @@ namespace TeamsAIssistant.Extensions
             return assistant.GetMetadataValue(AssistantMetadata.Visibility);
         }
 
+        public static IEnumerable<string>? GetSiteIndexes(this Assistant assistant)
+        {
+            return assistant.GetMetadataValue(AssistantMetadata.Sites)?.ToStringList();
+        }
+
+        public static IEnumerable<string>? GetDriveIndexes(this Assistant assistant)
+        {
+            return assistant.GetMetadataValue(AssistantMetadata.Drives)?.ToStringList();
+        }
+
         public static string? GetMetadataValue(this Assistant assistant, string value)
         {
             return assistant.Metadata != null && assistant.Metadata.ContainsKey(value)
                 && assistant.Metadata[value] != null && !string.IsNullOrEmpty(assistant.Metadata[value].ToString())
                 ? assistant.Metadata[value].ToString() : null;
         }
+
 
         public static string? GetPlugins(this Assistant assistant)
         {
@@ -164,6 +201,7 @@ namespace TeamsAIssistant.Extensions
                 {
                     throw new ArgumentException("Function missing");
                 }
+
                 return tool.Function.Name;
             }
 
@@ -172,7 +210,7 @@ namespace TeamsAIssistant.Extensions
 
         public static Assistant ToAssistant(this AssistantResponse response)
         {
-            return new Assistant()
+            return new()
             {
                 Id = response.Id,
                 Name = response.Name,
@@ -181,14 +219,14 @@ namespace TeamsAIssistant.Extensions
                 Description = response.Description,
                 FileIds = [.. response.FileIds],
                 Metadata = response.Metadata.ToDictionary(t => t.Key, y => (object)y.Value),
-                Tools = response.Tools.Select(y => y.ToTool()).ToList(),
+                Tools = response.Tools.Select(ToTool).ToList(),
                 Instructions = response.Instructions
             };
         }
 
         public static Tool GetToolFromType(this string type)
         {
-            return new Tool()
+            return new()
             {
                 Type = type
             };
@@ -206,10 +244,8 @@ namespace TeamsAIssistant.Extensions
             {
                 return Tool.CODE_INTERPRETER_TYPE.GetToolFromType();
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
     }

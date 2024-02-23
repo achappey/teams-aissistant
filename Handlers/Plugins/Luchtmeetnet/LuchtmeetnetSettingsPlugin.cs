@@ -5,12 +5,13 @@ using System.ComponentModel;
 using TeamsAIssistant.Services;
 using TeamsAIssistant.Repositories;
 using TeamsAIssistant.Attributes;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.Governments.NL
 {
-    public class LuchtmeetnetSettingsPlugin(IHttpClientFactory clientFactory,
+    public class LuchtmeetnetSettingsPlugin(TeamsAdapter teamsAdapter,
             ProactiveMessageService proactiveMessageService, DriveRepository driveRepository)
-            : LuchtmeetnetBasePlugin(clientFactory, proactiveMessageService, driveRepository, "Settings")
+            : LuchtmeetnetBasePlugin(teamsAdapter, proactiveMessageService, driveRepository, "Settings")
     {
 
         [Action("Luchtmeetnet.GetComponent")]

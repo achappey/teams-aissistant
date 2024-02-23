@@ -1,14 +1,15 @@
 
 using System.Web;
+using Microsoft.Teams.AI;
 using TeamsAIssistant.Constants;
 
 namespace TeamsAIssistant.Extensions
 {
     public static class HttpExtensions
     {
-        public static HttpClient GetDefaultClient(this IHttpClientFactory factory, string url, string name)
+        public static HttpClient GetDefaultClient(this TeamsAdapter teamsAdapter, string url, string name)
         {
-            var client = factory.CreateClient(name);
+            var client = teamsAdapter.HttpClientFactory.CreateClient(name);
             client.DefaultRequestHeaders.Add("User-Agent", AIConstants.AIUserAgent);
             client.BaseAddress = new Uri(url);
 

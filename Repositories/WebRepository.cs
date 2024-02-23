@@ -1,3 +1,4 @@
+using Microsoft.Teams.AI;
 using TeamsAIssistant.Constants;
 
 namespace TeamsAIssistant.Repositories;
@@ -6,9 +7,9 @@ public class WebRepository
 {
   private readonly HttpClient _httpClient;
 
-  public WebRepository(IHttpClientFactory httpClientFactory)
+  public WebRepository(TeamsAdapter teamsAdapter)
   {
-    _httpClient = httpClientFactory.CreateClient("DownloadClient");
+    _httpClient = teamsAdapter.HttpClientFactory.CreateClient("DownloadClient");
     _httpClient.DefaultRequestHeaders.Add("User-Agent", AIConstants.AIUserAgent);
   }
 

@@ -1,5 +1,4 @@
 
-using System.Globalization;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 using TeamsAIssistant.AdaptiveCards;
@@ -18,15 +17,16 @@ namespace TeamsAIssistant.Services
 
         if (url != null)
         {
-          FileCardData cardData = new(new CultureInfo(turnContext.Activity.Locale))
+          FileCardData cardData = new(new(turnContext.Activity.Locale))
           {
             Filename = file.Filename,
             Url = url
           };
 
           await proactiveMessageService.SendOrUpdateCardAsync(turnContext.Activity.GetConversationReference(),
-                           () => FileCards.FileCardTemplate.RenderAdaptiveCard(cardData),
-                            null, CancellationToken.None);
+                            () => FileCards.FileCardTemplate.RenderAdaptiveCard(cardData),
+                            null, 
+                            CancellationToken.None);
         }
       }
     }
@@ -38,7 +38,7 @@ namespace TeamsAIssistant.Services
       if (file != null && file.Url != null)
       {
 
-        FileCardData cardData = new(new CultureInfo(turnContext.Activity.Locale))
+        FileCardData cardData = new(new(turnContext.Activity.Locale))
         {
           Filename = file.Filename,
           Url = file.Url,
@@ -89,18 +89,23 @@ namespace TeamsAIssistant.Services
       return null;
     }
 
-    private async Task SendCardUpdateAsync(string status, ConversationReference connectionReference, string? uploadCardId, string filename, string url, string locale)
+    private Task<string?> SendCardUpdateAsync(string status,
+      ConversationReference connectionReference,
+      string? uploadCardId,
+      string filename,
+      string url,
+      string locale)
     {
-      FileCardData cardData = new(new CultureInfo(locale))
+      FileCardData cardData = new(new(locale))
       {
         Filename = filename,
         Url = url,
         Status = status
       };
 
-      await proactiveMessageService.SendOrUpdateCardAsync(
+      return proactiveMessageService.SendOrUpdateCardAsync(
           connectionReference,
-           () => FileCards.FileCardTemplate.RenderAdaptiveCard(cardData),
+          () => FileCards.FileCardTemplate.RenderAdaptiveCard(cardData),
           uploadCardId, CancellationToken.None);
     }
   }

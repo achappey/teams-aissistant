@@ -1,6 +1,6 @@
 using TeamsAIssistant.Handlers.Plugins.Mailchimp.Models;
 
-namespace TeamsAIssistant.Extensions
+namespace TeamsAIssistant.Handlers.Plugins.Mailchimp.Extensions
 {
     public static class MailchimpExtensions
     {

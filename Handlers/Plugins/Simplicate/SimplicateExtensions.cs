@@ -1,7 +1,7 @@
 using Newtonsoft.Json.Linq;
 using TeamsAIssistant.Attributes;
 
-namespace TeamsAIssistant.Extensions
+namespace TeamsAIssistant.Handlers.Plugins.Simplicate.Extensions
 {
     public static class SimplicateExtensions
     {

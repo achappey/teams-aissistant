@@ -12,7 +12,7 @@ namespace TeamsAIssistant.Extensions
 
         public static IEnumerable<Models.File>? ToFiles(this IEnumerable<Attachment> attachments)
         {
-            var inlineFiles = attachments.Where(t => string.IsNullOrEmpty(t.ContentUrl)).SelectMany(y => y.ExtractFiles()) ?? [];
+            var inlineFiles = attachments.Where(t => string.IsNullOrEmpty(t.ContentUrl)).SelectMany(ExtractFiles) ?? [];
 
             return inlineFiles.Concat(attachments.Where(t => !string.IsNullOrEmpty(t.ContentUrl)).Select(u => new Models.File()
             {
@@ -39,7 +39,7 @@ namespace TeamsAIssistant.Extensions
                         {
                             if (href.StartsWith("http"))
                             {
-                                resources.Add(new Models.File { Url = href, Filename = href.FindNameFromUrl() });
+                                resources.Add(new() { Url = href, Filename = href.FindNameFromUrl() });
                             }
                         }
                     }

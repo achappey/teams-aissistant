@@ -1,0 +1,56 @@
+{
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "emphasis",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${citation.sourceName}",
+                  "size": "Large",
+                  "weight": "Bolder"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "FactSet",
+      "facts": [
+        {
+          "title": "${relevanceText}",
+          "value": "${citation.partitions[0].relevance}"
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "${quoteText}",
+      "weight": "Bolder"
+    },
+    {
+      "type": "TextBlock",
+      "text": "${citation.partitions[0].text}",
+      "size": "Smaller",
+      "wrap": true
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "url": "${citation.sourceUrl}",
+      "title": "${citation.sourceName}"
+    }
+  ]
+}

@@ -9,7 +9,7 @@ using OpenAI.Managers;
 using Newtonsoft.Json;
 using TeamsAIssistant.Extensions;
 
-namespace TeamsAIssistant.Handlers.Plugins.Graph
+namespace TeamsAIssistant.Handlers.Plugins.AI
 {
     public class OpenAIFunctionsPlugin(OpenAIService openAIService, ProactiveMessageService proactiveMessageService,
         AssistantService assistantService, IStorage storage, PluginService pluginService,

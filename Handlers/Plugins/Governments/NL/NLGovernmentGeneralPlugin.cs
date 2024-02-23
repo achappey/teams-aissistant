@@ -4,12 +4,13 @@ using TeamsAIssistant.State;
 using System.ComponentModel;
 using TeamsAIssistant.Services;
 using TeamsAIssistant.Repositories;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.Governments.NL
 {
-    public class NLGovernmentGeneralPlugin(IHttpClientFactory clientFactory,
+    public class NLGovernmentGeneralPlugin(TeamsAdapter teamsAdapter,
             ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) 
-            : NLGovernmentBasePlugin(clientFactory, proactiveMessageService, driveRepository, "General")
+            : NLGovernmentBasePlugin(teamsAdapter, proactiveMessageService, driveRepository, "General")
     {
 
         [Action("Rijksoverheid.GetMinistries")]

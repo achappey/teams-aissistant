@@ -5,14 +5,15 @@ using TeamsAIssistant.Repositories;
 using TeamsAIssistant.Extensions;
 using System.Text;
 using TeamsAIssistant.Constants;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.Governments.NL
 {
-    public abstract class NLGovernmentBasePlugin(IHttpClientFactory clientFactory,
+    public abstract class NLGovernmentBasePlugin(TeamsAdapter teamsAdapter,
         ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, string name) 
         : PluginBase(driveRepository, proactiveMessageService, name, "Rijksoverheid", "Open data", "v1")
     {
-        protected readonly HttpClient client = clientFactory.GetDefaultClient("https://opendata.rijksoverheid.nl/v1/", "Rijksoverheid");
+        protected readonly HttpClient client = teamsAdapter.GetDefaultClient("https://opendata.rijksoverheid.nl/v1/", "Rijksoverheid");
 
         protected Task<string> GetNLGovernmentList(ITurnContext turnContext, TeamsAIssistantState turnState,
               string actionName, Dictionary<string, object> parameters, string url, IEnumerable<string>? excludeProps = null)

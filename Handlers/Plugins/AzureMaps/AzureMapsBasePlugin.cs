@@ -7,6 +7,7 @@ using Azure.Maps.Search;
 using TeamsAIssistant.Config;
 using Azure;
 using TeamsAIssistant.Extensions;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.AzureMaps
 {
@@ -16,7 +17,7 @@ namespace TeamsAIssistant.Handlers.Plugins.AzureMaps
         protected readonly MapsRoutingClient _mapsRouteClient;
         protected readonly HttpClient _httpClient;
 
-        public AzureMapsBasePlugin(IConfiguration configuration, IHttpClientFactory httpClientFactory,
+        public AzureMapsBasePlugin(IConfiguration configuration, TeamsAdapter teamsAdapter,
                 ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, string name)
                 : base(driveRepository, proactiveMessageService, name, "Microsoft", "Azure Maps API", "v1")
         {
@@ -25,7 +26,7 @@ namespace TeamsAIssistant.Handlers.Plugins.AzureMaps
             _mapsSearchClient = new MapsSearchClient(credential);
             _mapsRouteClient = new MapsRoutingClient(credential);
             
-            _httpClient = httpClientFactory.GetDefaultClient("https://atlas.microsoft.com/", "AzureMaps");
+            _httpClient = teamsAdapter.GetDefaultClient("https://atlas.microsoft.com/", "AzureMaps");
             _httpClient.DefaultRequestHeaders.Add("Subscription-Key", configKey);
         }
 

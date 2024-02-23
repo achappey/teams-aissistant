@@ -5,12 +5,13 @@ using System.ComponentModel;
 using TeamsAIssistant.Services;
 using TeamsAIssistant.Repositories;
 using TeamsAIssistant.Attributes;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.Governments.NL
 {
-    public class NLGovernmentNewsPlugin(IHttpClientFactory clientFactory,
+    public class NLGovernmentNewsPlugin(TeamsAdapter teamsAdapter,
             ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) 
-            : NLGovernmentBasePlugin(clientFactory, proactiveMessageService, driveRepository, "News")
+            : NLGovernmentBasePlugin(teamsAdapter, proactiveMessageService, driveRepository, "News")
     {
         private const string BASEURL = "infotypes/news";
 

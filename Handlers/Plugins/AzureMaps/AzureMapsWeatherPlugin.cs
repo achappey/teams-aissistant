@@ -6,12 +6,14 @@ using TeamsAIssistant.Services;
 using TeamsAIssistant.Repositories;
 using TeamsAIssistant.Attributes;
 using TeamsAIssistant.Extensions;
+using TeamsAIssistant.Handlers.Plugins.AzureMaps.Extensions;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.AzureMaps
 {
-    public class AzureMapsWeatherPlugin(IConfiguration configuration, IHttpClientFactory httpClientFactory,
+    public class AzureMapsWeatherPlugin(IConfiguration configuration, TeamsAdapter teamsAdapter,
             ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) 
-            : AzureMapsBasePlugin(configuration, httpClientFactory, proactiveMessageService, driveRepository, "Azure Maps Weather")
+            : AzureMapsBasePlugin(configuration, teamsAdapter, proactiveMessageService, driveRepository, "Azure Maps Weather")
     {
         private const string WEATHER_BASE_URL = "weather";
 

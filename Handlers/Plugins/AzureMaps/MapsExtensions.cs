@@ -1,4 +1,4 @@
-namespace TeamsAIssistant.Extensions
+namespace TeamsAIssistant.Handlers.Plugins.AzureMaps.Extensions
 {
     public static class MapsExtensions
     {

@@ -27,10 +27,7 @@ namespace TeamsAIssistant.Handlers.Plugins.Graph
                 async (graphClient, paramDict) =>
                     {
                         var result = await graphClient.Teams[parameters["teamsId"]?.ToString()].Members
-                            .GetAsync((requestConfiguration) =>
-                                {
-                                    requestConfiguration.QueryParameters.Orderby = ["displayName"];
-                                });
+                            .GetAsync();
 
                         return result?.Value;
                     });

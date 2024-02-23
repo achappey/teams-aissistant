@@ -23,6 +23,11 @@ using TeamsAIssistant.Extensions;
 using TeamsAIssistant.Handlers.Plugins;
 using MailChimp.Net;
 using Newtonsoft.Json;
+using Microsoft.Teams.AI.AI.Models;
+using Microsoft.Teams.AI.AI.Prompts;
+using TeamsAIssistant.Planner;
+using TeamsAIssistant.DataSources;
+using Microsoft.KernelMemory.DataFormats.WebPages;
 
 ////ngrok http 5130 --host-header="localhost:5130"
 var builder = WebApplication.CreateBuilder(args);
@@ -57,7 +62,6 @@ builder.Services.AddSingleton<BotFrameworkAuthentication, ConfigurationBotFramew
 // register the same adapter instance for all types.
 builder.Services.AddSingleton<TeamsAdapter, AdapterWithErrorHandler>();
 builder.Services.AddSingleton<IBotFrameworkHttpAdapter>(sp => sp.GetService<TeamsAdapter>()!);
-//builder.Services.AddSingleton<BotAdapter>(sp => sp.GetService<TeamsAdapter>()!);
 
 builder.Services.AddSingleton<WebRepository>();
 builder.Services.AddSingleton<AssistantRepository>();
@@ -65,11 +69,19 @@ builder.Services.AddSingleton<FileRepository>();
 builder.Services.AddSingleton<FileService>();
 builder.Services.AddSingleton<ProactiveMessageService>();
 builder.Services.AddSingleton<IMemoryCache, MemoryCache>();
+builder.Services.AddSingleton<WebScraper>();
 builder.Services.AddScoped<AssistantHandlers>();
 builder.Services.AddScoped<AssistantService>();
+builder.Services.AddScoped<IndexService>();
 builder.Services.AddScoped<PluginService>();
 builder.Services.AddScoped<ConversationHandlers>();
 builder.Services.AddScoped<FileHandlers>();
+builder.Services.AddScoped<KernelMemoryData>();
+
+builder.Services.AddSingleton<OpenAIModel>(sp => new(
+       new OpenAIModelOptions(config.OpenAI.ApiKey, OpenAI.ObjectModels.Models.Gpt_3_5_Turbo_1106),
+       sp.GetService<ILoggerFactory>()
+));
 
 if (!string.IsNullOrEmpty(config.AAD_APP_CLIENT_ID))
 {
@@ -77,6 +89,7 @@ if (!string.IsNullOrEmpty(config.AAD_APP_CLIENT_ID))
     builder.Services.AddScoped<SimplicateClientServiceProvider>();
     builder.Services.AddScoped<UserRepository>();
     builder.Services.AddScoped<UserService>();
+
 
     var allTypes = Assembly.GetExecutingAssembly().GetTypes();
     var pluginTypes = allTypes.Where(t => typeof(PluginBase).IsAssignableFrom(t) && t.IsClass && !t.IsAbstract);
@@ -98,7 +111,7 @@ builder.Services.AddSingleton(sp => new OpenAIService(new OpenAiOptions()
 {
     ApiKey = config.OpenAI.ApiKey,
     Organization = config.OpenAI.Organization,
-    DefaultModelId = OpenAI.ObjectModels.Models.Gpt_3_5_Turbo_1106
+    DefaultModelId = OpenAI.ObjectModels.Models.Gpt_4_0125_preview
 }));
 
 if (!string.IsNullOrEmpty(config.AzureBlobStorageConnectionString) && !string.IsNullOrEmpty(config.AzureBlobContainerName))
@@ -116,6 +129,7 @@ builder.Services.AddSingleton(_ => new AssistantsPlannerOptions(config.OpenAI.Ap
     Organization = config.OpenAI.Organization,
 });
 
+
 if (!string.IsNullOrEmpty(config.AAD_APP_CLIENT_ID))
 {
     builder.Services.AddSingleton<KeyVaultClientProvider>();
@@ -123,6 +137,7 @@ if (!string.IsNullOrEmpty(config.AAD_APP_CLIENT_ID))
     builder.Services.AddScoped<DriveRepository>();
     builder.Services.AddScoped<DownloadService>();
     builder.Services.AddScoped<AttachmentHandlers>();
+    builder.Services.AddScoped<ExtensionsHandlers>();
     builder.Services.AddScoped<ActionHandlers>();
     builder.Services.AddScoped<ConversationFilesService>();
 
@@ -147,7 +162,33 @@ builder.Services.AddTransient<IBot>(sp =>
     AuthenticationOptions<TeamsAIssistantState> options = new();
     var adapter = sp.GetRequiredService<TeamsAdapter>();
     ILoggerFactory loggerFactory = sp.GetRequiredService<ILoggerFactory>();
-    IPlanner<TeamsAIssistantState> planner = new AssistantsPlanner<TeamsAIssistantState>(sp.GetService<AssistantsPlannerOptions>()!, loggerFactory);
+    var graphClientServiceProvider = sp.GetService<GraphClientServiceProvider>();
+    var assistantService = sp.GetRequiredService<AssistantService>();
+    var indexService = sp.GetService<IndexService>();
+
+    PromptManager prompts = new(new()
+    {
+        PromptFolder = "./Prompts",
+        MaxConversationHistoryTokens = 1024
+    });
+
+    ActionPlannerOptions<TeamsAIssistantState> actionPlannerOptions = new(
+            model: sp.GetService<OpenAIModel>()!,
+            prompts: prompts,
+            defaultPrompt: async (context, state, planner) =>
+            {
+                PromptTemplate template = prompts.GetPrompt("Chat");
+
+                return await Task.FromResult(template);
+            }
+        );
+
+    IPlanner<TeamsAIssistantState> planner = new TeamsAIssistantPlanner(
+        actionPlannerOptions,
+        sp.GetRequiredService<KernelMemoryData>(),
+        assistantService,
+        sp.GetRequiredService<AssistantsPlannerOptions>(),
+        loggerFactory);
 
     // Start building the application
     var appBuilder = new ApplicationBuilder<TeamsAIssistantState>()
@@ -207,9 +248,9 @@ builder.Services.AddTransient<IBot>(sp =>
 
     var attachmentHandlers = sp.GetService<AttachmentHandlers>();
     var assistantHandlers = sp.GetRequiredService<AssistantHandlers>();
+    var extensionsHandlers = sp.GetRequiredService<ExtensionsHandlers>();
     var fileHandlers = sp.GetRequiredService<FileHandlers>();
     var conversationHandlers = sp.GetRequiredService<ConversationHandlers>();
-    var graphClientServiceProvider = sp.GetService<GraphClientServiceProvider>();
 
     if (attachmentHandlers != null)
     {
@@ -218,8 +259,9 @@ builder.Services.AddTransient<IBot>(sp =>
 
     app.OnMessage("/reset", conversationHandlers.HandleResetMessageHandler);
     app.OnMessage("/files", fileHandlers.SourcesMessageHandler);
-    app.OnMessage("/menu", conversationHandlers.MenuHandler);
     app.OnMessage("/assistant", assistantHandlers.AssistantMessageHandler);
+    app.OnMessage("/extensions", extensionsHandlers.MenuHandler);
+    app.OnMessage("/menu", conversationHandlers.MenuHandler);
 
     if (graphClientServiceProvider != null)
     {
@@ -229,12 +271,11 @@ builder.Services.AddTransient<IBot>(sp =>
             {
                 var token = turnState.GetGraphToken();
                 graphClientServiceProvider.SetToken(token);
+
                 return true;
             });
         });
     }
-
-    app.OnConversationUpdate(ConversationUpdateEvents.MembersAdded, conversationHandlers.WelcomeHandler);
 
     if (attachmentHandlers != null)
     {
@@ -249,25 +290,27 @@ builder.Services.AddTransient<IBot>(sp =>
     {
         app.AdaptiveCards.OnActionSubmit(SubmitActions.CloneAssistantVerb, assistantHandlers.CloneAssistantHandler);
         app.AdaptiveCards.OnActionSubmit(SubmitActions.DeleteAssistantVerb, assistantHandlers.DeleteAssistantHandler);
-        app.AdaptiveCards.OnActionSubmit(SubmitActions.UpdatePluginsVerb, conversationHandlers.UpdatePluginsHandler);
+        app.AdaptiveCards.OnActionSubmit(SubmitActions.UpdatePluginsVerb, extensionsHandlers.UpdatePluginsHandler);
+        app.AdaptiveCards.OnActionSubmit(SubmitActions.UpdateKernelMemoryVerb, extensionsHandlers.UpdateKernelMemoryHandler);
     }
 
     app.AdaptiveCards.OnActionSubmit(SubmitActions.ClearConversationVerb, conversationHandlers.ResetConversationHandler);
     app.AdaptiveCards.OnActionSubmit(SubmitActions.FilesVerb, fileHandlers.ShowFilesHandler);
     app.AdaptiveCards.OnActionSubmit(SubmitActions.AssistantVerb, assistantHandlers.ShowAssistantHandler);
+    app.AdaptiveCards.OnActionSubmit(SubmitActions.ExtensionsVerb, extensionsHandlers.ShowExtensionsHandler);
     app.AdaptiveCards.OnActionSubmit(SubmitActions.UpdateAssistantVerb, assistantHandlers.UpdateAssistantHandler);
     app.AdaptiveCards.OnActionSubmit(SubmitActions.UpdateConversationVerb, conversationHandlers.UpdateConversationHandler);
 
-    app.OnActivity(ActivityTypes.Message, (turnContext, turnState, cancellationToken) =>
+    app.OnActivity(ActivityTypes.Message, async (turnContext, turnState, cancellationToken) =>
     {
-        return HandleActivityAsync(turnContext, turnState, CancellationToken.None, app, sp, attachmentHandlers, conversationHandlers);
+        await HandleActivityAsync(turnContext, turnState, CancellationToken.None, app, sp, attachmentHandlers, conversationHandlers);
     });
 
     if (!string.IsNullOrEmpty(config.AAD_APP_CLIENT_ID))
     {
-        app.Authentication.Get("graph").OnUserSignInSuccess((context, state) =>
+        app.Authentication.Get("graph").OnUserSignInSuccess(async (context, state) =>
         {
-            return HandleActivityAsync(context, state, CancellationToken.None, app, sp, attachmentHandlers, conversationHandlers);
+            await HandleActivityAsync(context, state, CancellationToken.None, app, sp, attachmentHandlers, conversationHandlers);
         });
 
         app.Authentication.Get("graph").OnUserSignInFailure(async (context, state, ex) =>
@@ -296,13 +339,22 @@ static async Task HandleActivityAsync(ITurnContext turnContext, TeamsAIssistantS
 
         turnState.Temp.AdditionalInstructions += turnContext.GetAdditionalInstructions(turnState);
 
+        /* TeamsChannelData channelData = turnContext.Activity.GetChannelData<TeamsChannelData>();
+
+         if (channelData?.Team != null)
+         {
+             if (turnState.SiteIndexes == null || !turnState.SiteIndexes.Contains(channelData.Team.Id))
+             {
+                 turnState.SiteIndexes = turnState.SiteIndexes?.EnsureId(channelData.Team.Id);
+             }
+         }*/
+
         await turnState.SaveStateAsync(turnContext, sp.GetService<IStorage>());
-        await app.AI.RunAsync(turnContext, turnState);
+        await app.AI.RunAsync(turnContext, turnState, cancellationToken: cancellationToken);
 
         if (turnState.ExportToolCalls.HasValue && turnState.ExportToolCalls.Value)
         {
             var assistantService = sp.GetRequiredService<AssistantService>();
-
             var conversationFilesService = sp.GetService<ConversationFilesService>();
 
             if (conversationFilesService != null && turnState.ThreadId != null && turnState.RunId != null)
@@ -316,7 +368,7 @@ static async Task HandleActivityAsync(ITurnContext turnContext, TeamsAIssistantS
 
                     if (csvFile != null)
                     {
-                        await conversationFilesService.SaveFile(turnContext, new TeamsAIssistant.Models.File()
+                        await conversationFilesService.SaveFile(turnContext, new()
                         {
                             Filename = $"ToolCalls-{DateTime.Now.Ticks}.csv",
                             Content = csvFile

@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using MailChimp.Net;
 using TeamsAIssistant.Extensions;
 using TeamsAIssistant.Handlers.Plugins.Mailchimp.Models;
+using TeamsAIssistant.Handlers.Plugins.Mailchimp.Extensions;
 using Newtonsoft.Json.Linq;
 
 namespace TeamsAIssistant.Handlers.Plugins.Mailchimp

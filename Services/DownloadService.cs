@@ -1,24 +1,17 @@
+using System.Text;
 using System.Web;
+using Microsoft.KernelMemory.DataFormats.WebPages;
 using TeamsAIssistant.Extensions;
 using TeamsAIssistant.Repositories;
 
 namespace TeamsAIssistant.Services;
 
-public class DownloadService(WebRepository webRepository, DriveRepository driveRepository, SimplicateClientServiceProvider simplicateClientServiceProvider)
+public class DownloadService(WebRepository webRepository, DriveRepository driveRepository,
+  SimplicateClientServiceProvider simplicateClientServiceProvider, WebScraper webScraper)
 {
   public Task<string?> UploadDriveFileAsync(string folderName, string filename, byte[] file)
   {
     return driveRepository.UploadDriveFileAsync(folderName, filename, file);
-  }
-
-  public Task<Models.File?> DownloadDriveFileAsync(string url)
-  {
-    return driveRepository.DownloadDriveFileAsync(url);
-  }
-
-  public Task<byte[]?> DownloadFileAsync(string url)
-  {
-    return webRepository.DownloadFileAsync(url);
   }
 
   public async Task<Models.File?> DownloadAttachmentAsync(string aadObjectId, Models.File attachment)
@@ -54,7 +47,7 @@ public class DownloadService(WebRepository webRepository, DriveRepository driveR
         var filename = queryParameters["filename"];
         var simplicateByteContent = await response.Content.ReadAsByteArrayAsync();
 
-        return new Models.File()
+        return new ()
         {
           Filename = filename ?? string.Empty,
           Content = simplicateByteContent
@@ -62,21 +55,31 @@ public class DownloadService(WebRepository webRepository, DriveRepository driveR
       }
     }
 
-    var byteContent = await webRepository.DownloadFileAsync(attachment.Url);
-
     var fileName = attachment.Url.UrlToFileName();
-
+    var textContent = await webScraper.GetTextAsync(attachment.Url);
+    
     if (!Path.HasExtension(fileName))
-    { 
+    {
       fileName += ".html";
     }
 
-    return new Models.File()
+    if (textContent.Success)
     {
-      Filename = fileName,
-      Content = byteContent
-    };
+      return new ()
+      {
+        Filename = fileName,
+        Content = Encoding.UTF8.GetBytes(textContent.Text)
+      };
+    }
+    else
+    {
+      var byteContent = await webRepository.DownloadFileAsync(attachment.Url);
 
-
+      return new ()
+      {
+        Filename = fileName,
+        Content = byteContent
+      };
+    }
   }
 }

@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using AdaptiveCards;
+﻿using AdaptiveCards;
 using Microsoft.Bot.Builder;
 using Microsoft.Graph.Beta.Models;
 using Microsoft.Teams.AI;
@@ -90,9 +89,10 @@ namespace TeamsAIssistant.Handlers
             return _assistantService.GetAssistantAsync(turnState.AssistantId);
         }
 
-        private async Task HandleAssistantMessageAsync(ITurnContext turnContext, TeamsAIssistantState turnState, CancellationToken cancellationToken)
+
+        private Task HandleAssistantMessageAsync(ITurnContext turnContext, TeamsAIssistantState turnState, CancellationToken cancellationToken)
         {
-            await ShowAssistantCardAsync(turnContext, turnState, cancellationToken, true);
+            return ShowAssistantCardAsync(turnContext, turnState, cancellationToken, true);
         }
 
         private async Task HandleCloneAssistantAsync(ITurnContext turnContext, TeamsAIssistantState turnState, object data, CancellationToken cancellationToken)
@@ -128,8 +128,8 @@ namespace TeamsAIssistant.Handlers
             var assistantId = jObject[AssistantForm.AssistantId]?.ToString();
             var visibilityString = jObject[AssistantForm.Visibility]?.ToString();
             var teamId = jObject[AssistantForm.Team]?.ToString();
-            var newTools = jObject[AssistantForm.Tools]?.Value<string>()?.Split(",");
-            var newPlugins = jObject[AssistantForm.Plugins]?.Value<string>()?.Split(",");
+            var newTools = jObject[AssistantForm.Tools]?.Value<string>()?.ToStringList();
+            var newPlugins = jObject[AssistantForm.Plugins]?.Value<string>()?.ToStringList();
 
             List<Tool> pluginTools = [];
 
@@ -138,7 +138,7 @@ namespace TeamsAIssistant.Handlers
                 pluginTools.AddRange(_pluginService.GetPluginTools(plugin));
             }
 
-            var tools = newTools?.Select(t => t.GetToolFromType()).ToList() ?? [];
+            var tools = newTools?.Select(AssistantExtensions.GetToolFromType).ToList() ?? [];
             tools.AddRange(pluginTools);
 
             if (metadataString != null)
@@ -149,7 +149,7 @@ namespace TeamsAIssistant.Handlers
                     .WithTeam(teamId)
                     .WithPlugins(string.Join(",", newPlugins ?? []));
 
-                await _assistantService.UpdateAssistantAsync(new Assistant()
+                var assistant = new Assistant()
                 {
                     Id = assistantId!,
                     Name = newName,
@@ -158,8 +158,9 @@ namespace TeamsAIssistant.Handlers
                     Description = newDescription,
                     Instructions = newInstructions,
                     Metadata = newMetadata?.ToDictionary(a => a.Key, a => a.Value),
-                });
+                };
 
+                await _assistantService.UpdateAssistantAsync(assistant);
                 turnState.Model = newModel;
 
                 if (turnState.Plugins.Count != 0)
@@ -213,21 +214,21 @@ namespace TeamsAIssistant.Handlers
                 teams = teams.Take(100);
             }
 
-            var canDelete = assistant.IsOwner(turnContext.Activity.From) 
-                && !string.IsNullOrEmpty(turnState.AssistantId) 
+            var canDelete = assistant.IsOwner(turnContext.Activity.From)
+                && !string.IsNullOrEmpty(turnState.AssistantId)
                 && !_assistantService.IsDefaultAssistant(turnState.AssistantId);
 
             var allPlugins = _pluginService.GetPluginNames() ?? [];
 
-            AssistantCardData assistantCardData = new(new CultureInfo(turnContext.Activity.Locale))
+            AssistantCardData assistantCardData = new(new(turnContext.Activity.Locale))
             {
-                Assistant  = assistant,
+                Assistant = assistant,
                 CanDelete = canDelete,
                 TeamName = teamName,
                 OwnerNames = owners != null && owners.Any() ? string.Join(", ", owners) : null,
                 IsOwner = assistant.IsOwner(turnContext.Activity.From),
                 TeamChoices = teams?.Select(t => new AdaptiveChoice() { Title = t.DisplayName, Value = t.Id }) ?? [],
-                PluginChoices = allPlugins.Select(t => t.ToAdaptiveChoice()),
+                PluginChoices = allPlugins.Select(CardExtensions.ToAdaptiveChoice),
                 IsAuthenticated = turnState.IsAuthenticated(),
             };
 

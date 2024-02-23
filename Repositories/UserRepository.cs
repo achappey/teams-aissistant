@@ -1,36 +1,49 @@
 using Microsoft.Graph.Beta.Models;
 using TeamsAIssistant.Services;
 
-namespace TeamsAIssistant.Repositories;
-
-public class UserRepository(GraphClientServiceProvider graphClientServiceProvider)
+namespace TeamsAIssistant.Repositories
 {
-  private readonly GraphClientServiceProvider _graphClientServiceProvider = graphClientServiceProvider;
-
-  public async Task<IEnumerable<string>>? GetUsersByIds(IEnumerable<string> ids)
+  public class UserRepository(GraphClientServiceProvider graphClientServiceProvider)
   {
-    var graphClient = _graphClientServiceProvider.GetAuthenticatedGraphClient();
-    var result = await graphClient.Users.GetByIds.PostAsGetByIdsPostResponseAsync(new Microsoft.Graph.Beta.Users.GetByIds.GetByIdsPostRequestBody()
+    public async Task<IEnumerable<string>>? GetUsersByIds(IEnumerable<string> ids)
     {
-      Ids = ids.ToList()
-    });
+      var graphClient = graphClientServiceProvider.GetAuthenticatedGraphClient();
 
-    return result?.Value?.Select(t => (t as User)!.DisplayName)!.Order()!;
-  }
+      var result = await graphClient.Users.GetByIds.PostAsGetByIdsPostResponseAsync(
+          new Microsoft.Graph.Beta.Users.GetByIds.GetByIdsPostRequestBody()
+          {
+            Ids = ids.ToList()
+          });
 
-  public async Task<IEnumerable<Team>> GetJoinedTeams()
-  {
-    var graphClient = _graphClientServiceProvider.GetAuthenticatedGraphClient();
-    var result = await graphClient.Me.JoinedTeams.GetAsync();
+      return result?.Value?.Select(t => (t as User)!.DisplayName)!.Order()!;
+    }
 
-    return result?.Value ?? [];
-  }
+    public async Task<IEnumerable<Site>> GetFollowedSites()
+    {
+      var graphClient = graphClientServiceProvider.GetAuthenticatedGraphClient();
+      var result = await graphClient.Me.FollowedSites.GetAsync();
 
-  public async Task<Team?> GetTeam(string teamId)
-  {
-    var graphClient = _graphClientServiceProvider.GetAuthenticatedGraphClient();
-    var result = await graphClient.Teams[teamId].GetAsync();
+      return result?.Value ?? [];
+    }
 
-    return result;
+    public Task<Site?> GetSite(string siteId)
+    {
+      var graphClient = graphClientServiceProvider.GetAuthenticatedGraphClient();
+      return graphClient.Sites[siteId].GetAsync();
+    }
+
+    public async Task<IEnumerable<Team>> GetJoinedTeams()
+    {
+      var graphClient = graphClientServiceProvider.GetAuthenticatedGraphClient();
+      var result = await graphClient.Me.JoinedTeams.GetAsync();
+
+      return result?.Value ?? [];
+    }
+
+    public Task<Team?> GetTeam(string teamId)
+    {
+      var graphClient = graphClientServiceProvider.GetAuthenticatedGraphClient();
+      return graphClient.Teams[teamId].GetAsync();
+    }
   }
 }

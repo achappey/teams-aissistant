@@ -5,7 +5,9 @@ namespace TeamsAIssistant.Extensions
         private static readonly Dictionary<string, ModelPricing> prices = new()
         {
                 { "gpt-3.5-turbo-1106", new ModelPricing(0.0010, 0.0020) },
+                { "gpt-3.5-turbo-0125", new ModelPricing(0.0005, 0.0015) },
                 { "gpt-4-0125-preview", new ModelPricing(0.01, 0.03) },
+                { "gpt-4", new ModelPricing(0.03, 0.06) },
                 { "gpt-4-turbo-preview", new ModelPricing(0.01, 0.03) }
             };
 

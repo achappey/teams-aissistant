@@ -32,7 +32,7 @@ namespace TeamsAIssistant.Handlers.Plugins.Graph
                     });
         }
 
-        [Action("MicrosoftGraph.SearchDriveItem")]
+     /*   [Action("MicrosoftGraph.SearchDriveItem")]
         [Description("Search for a drive item")]
         [Parameter(name: "driveId", type: "string", readOnly: true, visible: false, required: true, description: "Id of the drive")]
         [Parameter(name: "query", type: "string", readOnly: true, visible: false, required: true, description: "Search query")]
@@ -48,7 +48,7 @@ namespace TeamsAIssistant.Handlers.Plugins.Graph
 
                         return result?.Value;
                     });
-        }
+        }*/
 
         [Action("MicrosoftGraph.DeleteOneDriveItem")]
         [Description("Deletes an OneDrive item")]

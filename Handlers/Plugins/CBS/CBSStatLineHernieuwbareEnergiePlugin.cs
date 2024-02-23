@@ -5,11 +5,12 @@ using System.ComponentModel;
 using TeamsAIssistant.Services;
 using TeamsAIssistant.Repositories;
 using TeamsAIssistant.Attributes;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.CBS
 {
-    public class CBSStatLineHernieuwbareEnergiePlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, IHttpClientFactory httpClientFactory)
-        : CBSStatLineBasePlugin(proactiveMessageService, driveRepository, httpClientFactory, "Hernieuwbare Energie")
+    public class CBSStatLineHernieuwbareEnergiePlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, TeamsAdapter teamsAdapter)
+        : CBSStatLineBasePlugin(proactiveMessageService, driveRepository, teamsAdapter, "Hernieuwbare Energie")
     {
         [Action("CBS.HernieuwbareEnergie.GetWindenergieOpLand")]
         [Description("In deze tabel zijn cijfers per provincie opgenomen over de capaciteit van windmolens en de gerealiseerde elektriciteitsproductie. De gegevens zijn exclusief de in zee opgestelde windmolens")]

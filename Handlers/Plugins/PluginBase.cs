@@ -12,7 +12,6 @@ using Microsoft.Teams.AI;
 using TeamsAIssistant.Attributes;
 using TeamsAIssistant.AdaptiveCards;
 using System.Globalization;
-using Microsoft.Graph.Beta;
 
 namespace TeamsAIssistant.Handlers.Plugins
 {
@@ -38,8 +37,6 @@ namespace TeamsAIssistant.Handlers.Plugins
             }
         }
 
-        protected readonly DriveRepository _driveRepository = driveRepository;
-        protected readonly ProactiveMessageService _proactiveMessageService = proactiveMessageService;
 
         public Plugin GetPlugin()
         {
@@ -61,21 +58,23 @@ namespace TeamsAIssistant.Handlers.Plugins
             return ExtractActions().FirstOrDefault(t => t.Name == name)?.Parameters ?? [];
         }
 
-        protected Task<string?> SendFunctionCard(ITurnContext turnContext, string actionName,
+        protected Task<string?> SendFunctionCard(
+            ITurnContext turnContext, 
+            string actionName,
             Dictionary<string, object> parameters)
         {
             ResultCardData resultCardData = new(new CultureInfo(turnContext.Activity.Locale))
             {
                 Header = actionName,
                 SubTitle = SourceName,
-                Parameters = parameters != null
-                            ? parameters.Select(kv => new KeyValuePair<string, string>(kv.Key, kv.Value?.ToString() ?? string.Empty)).ToList()
-                            : [],
+                Parameters = parameters?.Select(kv => new KeyValuePair<string, string>(kv.Key, kv.Value?.ToString() ?? string.Empty))
             };
 
-            return _proactiveMessageService.SendOrUpdateCardAsync(turnContext.Activity.GetConversationReference(),
-                                 () => FunctionCards.FunctionResultCardTemplate.RenderAdaptiveCard(resultCardData),
-                                  null, CancellationToken.None);
+            return proactiveMessageService.SendOrUpdateCardAsync(
+                                    turnContext.Activity.GetConversationReference(),
+                                    () => FunctionCards.FunctionResultCardTemplate.RenderAdaptiveCard(resultCardData),
+                                    null,
+                                    CancellationToken.None);
         }
 
         protected string? VerifyParameters(string actionName,
@@ -106,7 +105,7 @@ namespace TeamsAIssistant.Handlers.Plugins
                 return missingParams;
             }
 
-            await _proactiveMessageService.SendOrUpdateCardAsync(turnContext.Activity.GetConversationReference(),
+            await proactiveMessageService.SendOrUpdateCardAsync(turnContext.Activity.GetConversationReference(),
                                                                 () => FunctionCards.CreateConfirmationCard(actionName, SourceName, parameters, actionParams),
                                                                  null, CancellationToken.None);
 
@@ -124,7 +123,7 @@ namespace TeamsAIssistant.Handlers.Plugins
                 Submitted = $"{DateTime.Now} by {turnContext.Activity.From.Name}"
             };
 
-            return _proactiveMessageService.SendOrUpdateCardAsync(turnContext.Activity.GetConversationReference(),
+            return proactiveMessageService.SendOrUpdateCardAsync(turnContext.Activity.GetConversationReference(),
                                  () => FunctionCards.FunctionConfirmedCardTemplate.RenderAdaptiveCard(confirmedCardData),
                                   turnContext.Activity.ReplyToId, cancellationToken);
         }
@@ -139,7 +138,7 @@ namespace TeamsAIssistant.Handlers.Plugins
                 if (data != null)
                 {
                     var filename = $"{actionName}-{DateTime.Now.Ticks}.csv";
-                    var result = await _driveRepository.UploadDriveFileAsync(turnContext.Activity.Recipient.Name, filename, data);
+                    var result = await driveRepository.UploadDriveFileAsync(turnContext.Activity.Recipient.Name, filename, data);
 
                     if (result != null)
                     {
@@ -152,9 +151,11 @@ namespace TeamsAIssistant.Handlers.Plugins
                             ExportUrl = result
                         };
 
-                        await _proactiveMessageService.SendOrUpdateCardAsync(turnContext.Activity.GetConversationReference(),
-                                  () => FunctionCards.FunctionResultCardTemplate.RenderAdaptiveCard(resultCardData),
-                                   replyId, CancellationToken.None);
+                        await proactiveMessageService.SendOrUpdateCardAsync(
+                                    turnContext.Activity.GetConversationReference(),
+                                    () => FunctionCards.FunctionResultCardTemplate.RenderAdaptiveCard(resultCardData),
+                                    replyId,
+                                    CancellationToken.None);
                     }
                 }
             }
@@ -208,7 +209,9 @@ namespace TeamsAIssistant.Handlers.Plugins
                 if (actionAttribute != null)
                 {
                     var handler = (ActionSubmitHandler<TeamsAIssistantState>)Delegate.CreateDelegate(
-                        typeof(ActionSubmitHandler<TeamsAIssistantState>), this, method);
+                        typeof(ActionSubmitHandler<TeamsAIssistantState>),
+                        this,
+                        method);
 
                     tools.Add((method.Name, handler));
                 }
@@ -231,12 +234,16 @@ namespace TeamsAIssistant.Handlers.Plugins
 
                 if (!string.IsNullOrEmpty(param.Description))
                     paramDetails.Add("description", param.Description);
+
                 if (param.Minimum.HasValue)
                     paramDetails.Add("minimum", param.Minimum);
+
                 if (param.Maximum.HasValue)
                     paramDetails.Add("maximum", param.Maximum);
+
                 if (param.MaxLength > 0)
                     paramDetails.Add("maxLength", param.MaxLength);
+
                 if (param.EnumValues != null && param.EnumValues.Length != 0)
                     paramDetails.Add("enum", param.EnumValues);
 

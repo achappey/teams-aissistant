@@ -83,6 +83,16 @@
           "title": "${pluginsText}",
           "value": "${noPluginsText}",
           "$when": "${activePlugins == null}"
+        },
+        {
+          "title": "${kernelMemoryText}",
+          "value": "${selectedSourcesCount} ${sourcesText}",
+          "$when": "${hasSources}"
+        },
+        {
+          "title": "${kernelMemoryText}",
+          "value": "${noSourceText}",
+          "$when": "${!hasSources}"
         }
       ]
     }
@@ -99,43 +109,9 @@
       "data": { "verb": "Files" }
     },
     {
-      "type": "Action.ShowCard",
-      "title": "${pluginsText}",
-      "card": {
-        "type": "AdaptiveCard",
-        "version": "1.5",
-        "body": [
-          {
-            "type": "Input.ChoiceSet",
-            "id": "Plugins",
-            "label": "${pluginsText} (${experimentalText})",
-            "choices": "${selectablePlugins}",
-            "value": "${selectedConversationPlugins}",
-            "isMultiSelect": true,
-            "style": "filtered"
-          },
-          {
-            "type": "Input.Toggle",
-            "id": "ExportFunctionOutput",
-            "label": "${exportPluginOutputText}",
-            "value": "${exportFunctionOutput}"
-          }
-        ],
-        "actions": [
-          {
-            "type": "Action.Submit",
-            "title": "${saveText}",
-            "data": { "verb": "UpdatePlugins" }
-          }
-        ]
-      },
-      "$when": "${isAuthenticated}"
-    },
-    {
       "type": "Action.Submit",
-      "title": "${exportText}",
-      "data": { "verb": "Export" },
-      "$when": "${isAuthenticated}"
+      "title": "${extensionsText}",
+      "data": { "verb": "Extensions" }
     },
     {
       "type": "Action.ShowCard",
@@ -158,12 +134,16 @@
             "label": "Model",
             "choices": [
               {
-                "title": "gpt-3.5-turbo",
-                "value": "gpt-3.5-turbo-1106"
+                "title": "gpt-3.5-turbo-0125",
+                "value": "gpt-3.5-turbo-0125"
               },
               {
                 "title": "gpt-4-turbo-preview",
-                "value": "gpt-4-turbo-preview"
+                "value": "gpt-4-0125-preview"
+              },
+              {
+                "title": "gpt-4",
+                "value": "gpt-4"
               }
             ],
             "value": "${model}",

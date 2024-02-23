@@ -13,7 +13,10 @@ internal class SchoolHoliday
     {
         get
         {
-            return Content != null ? string.Join(", ", Content.Select(a => a.Title.Sanitize())) : string.Empty;
+            return Content != null ? string.Join(", ", Content
+                .Select(a => a.Title)
+                .Select(StringExtensions.Sanitize))
+                : string.Empty;
         }
         set { }
     }
@@ -22,7 +25,10 @@ internal class SchoolHoliday
     {
         get
         {
-            return Content != null ? string.Join(", ", Content.Select(a => a.SchoolYear.Sanitize())) : string.Empty;
+            return Content != null ? string.Join(", ", Content
+                .Select(a => a.SchoolYear)
+                .Select(StringExtensions.Sanitize))
+                : string.Empty;
         }
         set { }
     }

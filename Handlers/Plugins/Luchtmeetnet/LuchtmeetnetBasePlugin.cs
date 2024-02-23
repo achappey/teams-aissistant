@@ -6,14 +6,15 @@ using TeamsAIssistant.Extensions;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using TeamsAIssistant.Constants;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.Governments.NL
 {
-    public abstract class LuchtmeetnetBasePlugin(IHttpClientFactory clientFactory,
+    public abstract class LuchtmeetnetBasePlugin(TeamsAdapter teamsAdapter,
             ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, string name) 
             : PluginBase(driveRepository, proactiveMessageService, name, "Luchtmeetnet", "Open data", "v1")
     {
-        protected readonly HttpClient client = clientFactory.GetDefaultClient("https://api.luchtmeetnet.nl/open_api/", "Luchtmeetnet");
+        protected readonly HttpClient client = teamsAdapter.GetDefaultClient("https://api.luchtmeetnet.nl/open_api/", "Luchtmeetnet");
 
         protected async Task<string> GetList(ITurnContext turnContext, TeamsAIssistantState turnState,
             string actionName, Dictionary<string, object> parameters, string url)

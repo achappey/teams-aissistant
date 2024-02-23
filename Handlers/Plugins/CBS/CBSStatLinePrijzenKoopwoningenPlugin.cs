@@ -5,11 +5,12 @@ using System.ComponentModel;
 using TeamsAIssistant.Services;
 using TeamsAIssistant.Repositories;
 using TeamsAIssistant.Attributes;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.CBS
 {
-    public class CBSStatLinePrijzenKoopwoningenPlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, IHttpClientFactory httpClientFactory)
-        : CBSStatLineBasePlugin(proactiveMessageService, driveRepository, httpClientFactory, "Prijzen Koopwoningen")
+    public class CBSStatLinePrijzenKoopwoningenPlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, TeamsAdapter teamsAdapter)
+        : CBSStatLineBasePlugin(proactiveMessageService, driveRepository, teamsAdapter, "Prijzen Koopwoningen")
     {
         [Action("CBS.PrijzenKoopwoningen.GetIndexBestaandeKoopwoningenNederland")]
         [Description("Deze tabel geeft de prijsontwikkelingen weer van de voorraad van bestaande koopwoningen. Ook worden het aantal transacties, de gemiddelde verkoopprijs en de totale waarde van de verkoopprijzen van de verkochte woningen gepubliceerd. De prijsindexcijfers over de bestaande koopwoningen zijn gebaseerd op een integrale registratie van verkooptransacties van woningen door het Kadaster en WOZ-waarden van alle woningen in Nederland")]

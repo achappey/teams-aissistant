@@ -17,6 +17,8 @@
         public Mailchimp? Mailchimp { get; set; }
         public string? BAGApiKey { get; set; }
         public string? AzureMapsSubscriptionKey { get; set; }        
+        public string? IndexQueue { get; set; }        
+        public string? SearchEndpoint { get; set; }        
     }
 
     public class Mailchimp

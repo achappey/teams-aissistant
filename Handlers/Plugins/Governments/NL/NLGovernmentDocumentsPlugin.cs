@@ -5,12 +5,13 @@ using System.ComponentModel;
 using TeamsAIssistant.Services;
 using TeamsAIssistant.Repositories;
 using TeamsAIssistant.Attributes;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.Governments.NL
 {
-    public class NLGovernmentDocumentsPlugin(IHttpClientFactory clientFactory,
+    public class NLGovernmentDocumentsPlugin(TeamsAdapter teamsAdapter,
             ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) 
-            : NLGovernmentBasePlugin(clientFactory, proactiveMessageService, driveRepository, "Documents")
+            : NLGovernmentBasePlugin(teamsAdapter, proactiveMessageService, driveRepository, "Documents")
     {
         [Action("Rijksoverheid.GetDocumentDetail")]
         [Description("Gets detailed information from an NL government document")]

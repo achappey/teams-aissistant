@@ -4,17 +4,23 @@ using Microsoft.Teams.AI.AI;
 using TeamsAIssistant.Services;
 using TeamsAIssistant.Extensions;
 using TeamsAIssistant.State;
+using TeamsAIssistant.AdaptiveCards;
+using Microsoft.KernelMemory;
 
 namespace TeamsAIssistant.Handlers
 {
-    public class ActionHandlers(ConversationFilesService conversationFilesService)
+    public class ActionHandlers(ConversationFilesService conversationFilesService, ProactiveMessageService proactiveMessageService)
     {
 
         [Action(AIConstants.UnknownActionName)]
-        public async Task<string> UnknownAction([ActionTurnContext] ITurnContext turnContext, [ActionName] string action)
+        public Task<string> UnknownAction([ActionTurnState] TeamsAIssistantState state,
+         [ActionName] string action)
         {
-            await turnContext.SendActivityAsync($"An AI request failed: {action}. Please try again.");
-            return AIConstants.StopCommand;
+            return Task.Run(() =>
+            {
+                state.Temp.Input += $"Unknown function: {action}. Please check the function name carefully";
+                return AIConstants.SayCommand;
+            });
         }
 
         [Action(AIConstants.HttpErrorActionName)]
@@ -38,7 +44,7 @@ namespace TeamsAIssistant.Handlers
             if (turnState.IsAuthenticated() && !string.IsNullOrEmpty(filename)
                 && parameters["fileContent"] is byte[] fileContent)
             {
-                await conversationFilesService.SaveFile(turnContext, new Models.File()
+                await conversationFilesService.SaveFile(turnContext, new()
                 {
                     Filename = filename,
                     Content = fileContent
@@ -48,5 +54,22 @@ namespace TeamsAIssistant.Handlers
             return string.Empty;
         }
 
+        [Action(Constants.AIConstants.CitationActionName)]
+        public async Task<string> ShowCitation(
+            [ActionTurnContext] ITurnContext turnContext,
+            [ActionParameters] Dictionary<string, object> parameters)
+        {
+            var dads = parameters["citation"].ToString();
+            var citationsCard = new CitationCardData(new(turnContext.Activity.Locale))
+            {
+                Citation = parameters["citation"] as Citation
+            };
+
+            await proactiveMessageService.SendOrUpdateCardAsync(turnContext.Activity.GetConversationReference(),
+                            () => CitationCard.CitationCardTemplate.RenderAdaptiveCard(citationsCard),
+                             null, CancellationToken.None);
+
+            return string.Empty;
+        }
     }
 }

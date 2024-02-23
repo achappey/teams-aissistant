@@ -1,4 +1,3 @@
-using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Schema;
 using TeamsAIssistant.Extensions;
 using AdaptiveCards;

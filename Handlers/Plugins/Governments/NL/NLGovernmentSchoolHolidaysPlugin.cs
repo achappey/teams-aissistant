@@ -7,12 +7,13 @@ using TeamsAIssistant.Repositories;
 using Newtonsoft.Json;
 using TeamsAIssistant.Attributes;
 using TeamsAIssistant.Handlers.Plugins.Governments.NL.Models;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.Governments.NL
 {
-    public class NLGovernmentSchoolHolidaysPlugin(IHttpClientFactory clientFactory,
+    public class NLGovernmentSchoolHolidaysPlugin(TeamsAdapter teamsAdapter,
             ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) 
-            : NLGovernmentBasePlugin(clientFactory, proactiveMessageService, driveRepository, "School Holidays")
+            : NLGovernmentBasePlugin(teamsAdapter, proactiveMessageService, driveRepository, "School Holidays")
     {
 
         [Action("Rijksoverheid.SearchSchoolHolidays")]
@@ -50,10 +51,9 @@ namespace TeamsAIssistant.Handlers.Plugins.Governments.NL
                     StartDate = r.StartDate,
                     Type = v.Type,
                     Region = r.Region
-                }) ?? [])
-                .ToList() ?? [];
+                }) ?? []) ?? [];
 
-            if (flattened.Count != 0)
+            if (flattened.Any())
             {
                 var resultJson = JsonConvert.SerializeObject(flattened);
                 await UpdateFunctionCard(turnContext, turnState, actionName, parameters, resultJson, cardId);

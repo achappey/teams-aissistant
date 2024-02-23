@@ -10,6 +10,8 @@ using Newtonsoft.Json;
 using TeamsAIssistant.Attributes;
 using System.ComponentModel;
 using TeamsAIssistant.Handlers.Plugins.BAG.Models;
+using TeamsAIssistant.Handlers.Plugins.BAG.Extensions;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.BAG
 {
@@ -17,11 +19,11 @@ namespace TeamsAIssistant.Handlers.Plugins.BAG
     {
         protected readonly HttpClient client;
 
-        public BAGBasePlugin(IHttpClientFactory clientFactory, IConfiguration configuration,
+        public BAGBasePlugin(TeamsAdapter teamsAdapter, IConfiguration configuration,
                 ProactiveMessageService proactiveMessageService, DriveRepository driveRepository)
                 : base(driveRepository, proactiveMessageService, "Basisregistratie Adressen en Gebouwen", "Kadaster", "Basisregistratie Adressen en Gebouwen", "v2")
         {
-            client = clientFactory.GetDefaultClient("https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/", "BAG");
+            client = teamsAdapter.GetDefaultClient("https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/", "BAG");
 
             var bagApiKey = configuration.Get<ConfigOptions>()?.BAGApiKey;
             client.DefaultRequestHeaders.Add("X-Api-Key", bagApiKey);

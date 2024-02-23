@@ -5,12 +5,13 @@ using System.ComponentModel;
 using TeamsAIssistant.Services;
 using TeamsAIssistant.Repositories;
 using TeamsAIssistant.Attributes;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.Governments.NL
 {
-    public class NLGovernmentFaqsPlugin(IHttpClientFactory clientFactory,
+    public class NLGovernmentFaqsPlugin(TeamsAdapter teamsAdapter,
             ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) 
-            : NLGovernmentBasePlugin(clientFactory, proactiveMessageService, driveRepository, "FAQs")
+            : NLGovernmentBasePlugin(teamsAdapter, proactiveMessageService, driveRepository, "FAQs")
     {
         private const string BASEURL = "infotypes/faq";
 

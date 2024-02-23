@@ -143,12 +143,16 @@
             "id": "ModelId",
             "choices": [
               {
-                "title": "gpt-3.5-turbo",
-                "value": "gpt-3.5-turbo-1106"
+                "title": "gpt-3.5-turbo-0125",
+                "value": "gpt-3.5-turbo-0125"
               },
               {
                 "title": "gpt-4-turbo-preview",
-                "value": "gpt-4-turbo-preview"
+                "value": "gpt-4-0125-preview"
+              },
+              {
+                "title": "gpt-4",
+                "value": "gpt-4"
               }
             ],
             "isRequired": true,

@@ -5,11 +5,12 @@ using System.ComponentModel;
 using TeamsAIssistant.Services;
 using TeamsAIssistant.Repositories;
 using TeamsAIssistant.Attributes;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.CBS
 {
-    public class CBSStatLineVervoermiddelenPlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, IHttpClientFactory httpClientFactory)
-        : CBSStatLineBasePlugin(proactiveMessageService, driveRepository, httpClientFactory, "Vervoermiddelen")
+    public class CBSStatLineVervoermiddelenPlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, TeamsAdapter teamsAdapter)
+        : CBSStatLineBasePlugin(proactiveMessageService, driveRepository, teamsAdapter, "Vervoermiddelen")
     {
         [Action("CBS.Vervoermiddelen.GetEmissiesNaarLucht")]
         [Description("Deze tabel bevat cijfers over feitelijke totale emissies naar lucht op Nederlands grondgebied door het totale wegverkeer, inclusief buitenlandse voertuigen. Daarnaast bevat deze tabel cijfers over de bijbehorende parkemissiefactoren, dit zijn de gemiddelde emissies per voertuigkilometer")]

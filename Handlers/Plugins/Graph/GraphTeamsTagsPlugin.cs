@@ -9,6 +9,7 @@ using Microsoft.Graph.Beta.Models;
 using Newtonsoft.Json.Linq;
 using Microsoft.Graph.Beta;
 using Newtonsoft.Json;
+using TeamsAIssistant.Extensions;
 
 namespace TeamsAIssistant.Handlers.Plugins.Graph
 {
@@ -47,7 +48,7 @@ namespace TeamsAIssistant.Handlers.Plugins.Graph
                     var teamsId = parameters["teamsId"]?.ToString();
                     var team = await graphClient.Teams[teamsId].GetAsync();
 
-                    var members = parameters["members"]?.ToString()?.Split(",");
+                    var members = parameters["members"]?.ToString()?.ToStringList();
                     var users = await graphClient.Users.GetByIds.PostAsGetByIdsPostResponseAsync(new()
                     {
                         Ids = members?.ToList()

@@ -50,8 +50,8 @@ namespace TeamsAIssistant.Handlers.Plugins.Graph
                             ContentType = Enum.Parse<BodyType>(contentType ?? Enum.GetName(BodyType.Text)!),
                             Content = content,
                         },
-                        ToRecipients = toRecipients?.Select(t => t.ToRecipient()).ToList(),
-                        CcRecipients = ccRecipients?.Select(t => t.ToRecipient()).ToList()
+                        ToRecipients = toRecipients?.Select(GraphExtensions.ToRecipient).ToList(),
+                        CcRecipients = ccRecipients?.Select(GraphExtensions.ToRecipient).ToList()
                     };
 
                     var message = await graphClient.Me.Messages.PostAsync(requestBody);
@@ -175,7 +175,7 @@ namespace TeamsAIssistant.Handlers.Plugins.Graph
                 var requestBody = new Microsoft.Graph.Beta.Me.Messages.Item.CreateForward.CreateForwardPostRequestBody
                 {
                     Comment = jObject?["comments"]?.ToString(),
-                    ToRecipients = toRecipients?.Select(t => t.ToRecipient()).ToList(),
+                    ToRecipients = toRecipients?.Select(GraphExtensions.ToRecipient).ToList(),
                 };
 
                 var message = await graphClient.Me.Messages[jObject?["messageId"]?.ToString()].CreateForward.PostAsync(requestBody);

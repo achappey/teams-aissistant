@@ -9,6 +9,7 @@ using System.Text;
 using Newtonsoft.Json;
 using TeamsAIssistant.Attributes;
 using TeamsAIssistant.Constants;
+using TeamsAIssistant.Handlers.Plugins.Simplicate.Extensions;
 
 namespace TeamsAIssistant.Handlers.Plugins.Simplicate
 {
@@ -117,11 +118,11 @@ namespace TeamsAIssistant.Handlers.Plugins.Simplicate
 
             if (!result.IsSuccessStatusCode)
             {
-                throw new Exception(result.ReasonPhrase ?? AIConstants.AIUnknownErrorMessage);
+                throw new HttpRequestException(result.ReasonPhrase ?? AIConstants.AIUnknownErrorMessage);
             }
 
             var json = await result.Content.ReadAsStringAsync();
-            var data = (JObject.Parse(json)?["data"]) ?? throw new Exception(result.ReasonPhrase ?? AIConstants.AIUnknownErrorMessage);
+            var data = (JObject.Parse(json)?["data"]) ?? throw new HttpRequestException(result.ReasonPhrase ?? AIConstants.AIUnknownErrorMessage);
 
             return data;
         }
@@ -152,7 +153,7 @@ namespace TeamsAIssistant.Handlers.Plugins.Simplicate
                 {
                     var errors = await response?.Content?.ReadAsStringAsync(cancellationToken)!;
                     
-                    throw new Exception(errors ?? response.ReasonPhrase ?? AIConstants.AIUnknownErrorMessage);
+                    throw new HttpRequestException(errors ?? response.ReasonPhrase ?? AIConstants.AIUnknownErrorMessage);
                 }
 
                 result = await response?.Content?.ReadAsStringAsync(cancellationToken)!;

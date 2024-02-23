@@ -5,11 +5,12 @@ using System.ComponentModel;
 using TeamsAIssistant.Services;
 using TeamsAIssistant.Repositories;
 using TeamsAIssistant.Attributes;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.CBS
 {
-    public class CBSStatLinePrijzenEnergiePlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, IHttpClientFactory httpClientFactory)
-        : CBSStatLineBasePlugin(proactiveMessageService, driveRepository, httpClientFactory, "Prijzen Energie")
+    public class CBSStatLinePrijzenEnergiePlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, TeamsAdapter teamsAdapter)
+        : CBSStatLineBasePlugin(proactiveMessageService, driveRepository, teamsAdapter, "Prijzen Energie")
     {
         [Action("CBS.PrijzenEnergie.GetEindverbruikersprijzen")]
         [Description("Deze tabel toont de gemiddelde prijzen voor aardgas en elektriciteit. De totaalprijs is de som van de leveringsprijs en de netwerkprijs")]

@@ -8,6 +8,15 @@ namespace TeamsAIssistant.Extensions
 {
     public static class StringExtensions
     {
+        public static string ToListString(this IEnumerable<string>? items)
+        {
+            return string.Join(",", items ?? []);
+        }
+
+        public static List<string>? ToStringList(this string? text)
+        {
+            return text?.Split(",").Where(t => !string.IsNullOrEmpty(t)).ToList();
+        }
 
         public static dynamic? ExtractFirstData(this IEnumerable<IEnumerable<IEnumerable<dynamic>>> data)
         {
@@ -120,65 +129,33 @@ namespace TeamsAIssistant.Extensions
             if (string.IsNullOrEmpty(url))
                 return "default_filename";
 
-            // Splits de URL in basisnaam en extensie
             var uri = new Uri(url);
             var baseName = Path.GetFileNameWithoutExtension(uri.AbsolutePath);
             var extension = Path.GetExtension(uri.AbsolutePath);
-            // Gebruik de domeinnaam en pad als basisnaam als er geen bestandsnaam is
+
             if (string.IsNullOrWhiteSpace(baseName))
             {
                 baseName = uri.Host.Replace(".", "") + uri.AbsolutePath.Replace("/", "");
             }
 
-            // Verwijder ongeldige bestandsnaam karakters
             string invalidChars = Regex.Escape(new string(Path.GetInvalidFileNameChars()));
             string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
 
             baseName = Regex.Replace(baseName, invalidRegStr, "_");
-
-            // Verwijder alle punten uit de basisnaam
             baseName = baseName.Replace(".", "");
 
-            // Voeg de extensie toe als deze ontbreekt
             if (extension == null || !FileTypes.CodeInterpreterExtensions.Contains(extension))
             {
                 extension = ".html";
             }
 
-            // Bereken de maximale lengte voor de basisnaam
             int maxBaseNameLength = 255 - extension.Length;
-
-            // Beperk de lengte van de basisnaam
-            baseName = baseName.Length <= maxBaseNameLength ? baseName : baseName.Substring(0, maxBaseNameLength);
+            baseName = baseName.Length <= maxBaseNameLength ? baseName : baseName[..maxBaseNameLength];
 
             var safeName = baseName + extension;
 
             return safeName;
         }
-
-
-        public static string UrlToFileName2s(this string url)
-        {
-            if (string.IsNullOrEmpty(url))
-                return "default_filename";
-
-            // Verwijder ongeldige bestandsnaam karakters
-            string invalidChars = Regex.Escape(new string(Path.GetInvalidFileNameChars()));
-            string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
-
-            var safeName = Regex.Replace(url, invalidRegStr, "_");
-            var extension = Path.GetExtension(safeName);
-
-            if (extension == null || !FileTypes.CodeInterpreterExtensions.Contains(extension))
-            {
-                safeName += ".html";
-            }
-
-            // Beperk de lengte van de bestandsnaam
-            return safeName.Length <= 255 ? safeName : safeName[..255];
-        }
-
-
 
         public static string GetFilenameFromUrl(this string url)
         {

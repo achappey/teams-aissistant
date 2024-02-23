@@ -7,9 +7,29 @@ namespace TeamsAIssistant.Extensions
 {
     public static class GraphExtensions
     {
+
+        private static async Task AddFilesRecursivelyAsync(DriveItem folder, GraphServiceClient graphClient, List<DriveItem> allFiles)
+        {
+            var children = await graphClient.Drives[folder?.ParentReference?.DriveId].Items[folder?.Id].Children
+                .GetAsync();
+
+            foreach (var item in children?.Value ?? [])
+            {
+                if (item.Folder != null)
+                {
+                    await AddFilesRecursivelyAsync(item, graphClient, allFiles);
+                }
+                else
+                {
+                    allFiles.Add(item);
+                }
+            }
+        }
+
+
         public static Recipient ToRecipient(this string address)
         {
-            return new Recipient
+            return new()
             {
                 EmailAddress = address.ToEmailAddress()
             };
@@ -17,7 +37,7 @@ namespace TeamsAIssistant.Extensions
 
         public static EmailAddress ToEmailAddress(this string address)
         {
-            return new EmailAddress
+            return new()
             {
                 Address = address
             };
@@ -25,9 +45,9 @@ namespace TeamsAIssistant.Extensions
 
         public static ChatMessage ToChatMessage(this JObject jObject)
         {
-            return new ChatMessage
+            return new()
             {
-                Body = new ItemBody
+                Body = new()
                 {
                     ContentType = Enum.Parse<BodyType>(jObject?["contentType"]?.ToString() ??
                                 Enum.GetName(BodyType.Text)!),
@@ -39,7 +59,7 @@ namespace TeamsAIssistant.Extensions
 
         public static DateTimeTimeZone ToTimeZone(this string item)
         {
-            return new DateTimeTimeZone()
+            return new()
             {
                 DateTime = item
             };
@@ -83,8 +103,7 @@ namespace TeamsAIssistant.Extensions
             string base64Value = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(link));
             string encodedUrl = "u!" + base64Value.TrimEnd('=').Replace('/', '_').Replace('+', '-');
 
-            return client.Shares[encodedUrl].DriveItem
-            .GetAsync();
+            return client.Shares[encodedUrl].DriveItem.GetAsync();
         }
 
         public static async Task<byte[]> GetDriveItemContent(this GraphServiceClient client, string driveId, string itemId)
@@ -99,6 +118,7 @@ namespace TeamsAIssistant.Extensions
 
             using var memoryStream = new MemoryStream();
             await stream.CopyToAsync(memoryStream);
+
             return memoryStream.ToArray();
         }
 

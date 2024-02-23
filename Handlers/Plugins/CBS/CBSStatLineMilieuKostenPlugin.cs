@@ -5,11 +5,12 @@ using System.ComponentModel;
 using TeamsAIssistant.Services;
 using TeamsAIssistant.Repositories;
 using TeamsAIssistant.Attributes;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.CBS
 {
-    public class CBSStatLineMilieuKostenPlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, IHttpClientFactory httpClientFactory)
-        : CBSStatLineBasePlugin(proactiveMessageService, driveRepository, httpClientFactory, "Milieukosten")
+    public class CBSStatLineMilieuKostenPlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, TeamsAdapter teamsAdapter)
+        : CBSStatLineBasePlugin(proactiveMessageService, driveRepository, teamsAdapter, "Milieukosten")
     {
         [Action("CBS.Milieukosten.GetKerncijfersBedrijven")]
         [Description("Deze tabel geeft kerncijfers over de milieu-investeringen en de milieulasten door bedrijven (met 10 of meer werknemers) in de bedrijfstakken delfstoffenwinning, industrie, energievoorziening en waterwinning. Het begrip 'milieu', zoals in deze tabel gebruikt, omvat het leefklimaat buiten het bedrijfsterrein met inbegrip van het bodemklimaat of de bodem onder dat terrein")]

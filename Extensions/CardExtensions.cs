@@ -2,9 +2,7 @@ using AdaptiveCards;
 using AdaptiveCards.Templating;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
-using Microsoft.Teams.AI.AI.OpenAI.Models;
 using TeamsAIssistant.Attributes;
-using TeamsAIssistant.Constants;
 
 namespace TeamsAIssistant.Extensions
 {
@@ -135,11 +133,9 @@ namespace TeamsAIssistant.Extensions
 
         public static IEnumerable<AdaptiveElement> ToAdaptiveElements(this ParameterAttribute parameter, string? value)
         {
-            List<AdaptiveElement> elements = [];
-
-            elements.Add(parameter.ToAdaptiveInput(value));
-
-            return elements;
+            return [
+                parameter.ToAdaptiveInput(value)
+            ];
         }
 
         public static AdaptiveElement ToAdaptiveInput(this ParameterAttribute parameter, string? value)
@@ -187,7 +183,7 @@ namespace TeamsAIssistant.Extensions
                             Label = parameter.Name,
                             IsVisible = isVisible,
                             IsRequired = parameter.Required,
-                            Choices = parameter.EnumValues.Select(a => a.ToAdaptiveChoice()).ToList()
+                            Choices = parameter.EnumValues.Select(ToAdaptiveChoice).ToList()
                         };
                     }
 
@@ -211,13 +207,11 @@ namespace TeamsAIssistant.Extensions
 
         public static IMessageActivity ToAdaptiveCardAttachment(this AdaptiveCard card)
         {
-            var attachment = new Attachment
+            return MessageFactory.Attachment(new Attachment
             {
                 ContentType = AdaptiveCard.ContentType,
                 Content = card
-            };
-
-            return MessageFactory.Attachment(attachment);
+            });
         }
     }
 }

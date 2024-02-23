@@ -10,11 +10,14 @@ using Newtonsoft.Json;
 using Azure.Maps.Routing;
 using Azure.Maps.Search;
 using TeamsAIssistant.Extensions;
+using TeamsAIssistant.Handlers.Plugins.AzureMaps.Extensions;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.AzureMaps
 {
-    public class AzureMapsPlacesPlugin(IConfiguration configuration, IHttpClientFactory httpClientFactory,
-            ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) : AzureMapsBasePlugin(configuration, httpClientFactory, proactiveMessageService, driveRepository, "Azure Maps Places")
+    public class AzureMapsPlacesPlugin(IConfiguration configuration, TeamsAdapter teamsAdapter,
+            ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) 
+                : AzureMapsBasePlugin(configuration, teamsAdapter, proactiveMessageService, driveRepository, "Azure Maps Places")
     {
 
         [Action("AzureMaps.GetRouteDirections")]
@@ -57,12 +60,12 @@ namespace TeamsAIssistant.Handlers.Plugins.AzureMaps
                 async () =>
                     {
                         var routeResult = await _mapsRouteClient.GetDirectionsAsync(
-                            new RouteDirectionQuery([
+                            new([
                                 new(double.Parse(startLongitude), double.Parse(startLatitude)),
                                 new(double.Parse(endLongitude), double.Parse(endLatitude))],
-                                new RouteDirectionOptions()
+                                new()
                                 {
-                                    TravelMode = new TravelMode(parameters.TryGetValue("travelMode", out var travelModeValue) 
+                                    TravelMode = new(parameters.TryGetValue("travelMode", out var travelModeValue)
                                         ? travelModeValue?.ToString() ?? string.Empty : TravelMode.Car.ToString()),
                                     Language = parameters.TryGetValue("language", out object? value) ? value?.ToString() : RoutingLanguage.EnglishUsa,
                                 }));
@@ -86,9 +89,9 @@ namespace TeamsAIssistant.Handlers.Plugins.AzureMaps
                 async () =>
                     {
                         var (latitude, longitude) = parameters.GetLatLong();
-                        
+
                         var searchResult = await _mapsSearchClient.FuzzySearchAsync(
-                        parameters["query"]?.ToString(), new FuzzySearchOptions
+                        parameters["query"]?.ToString(), new()
                         {
                             Coordinates = new GeoPosition(double.Parse(longitude), double.Parse(latitude)),
                             Language = parameters.TryGetValue("language", out object? value) ? value?.ToString() : SearchLanguage.EnglishUsa,

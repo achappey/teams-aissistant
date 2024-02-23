@@ -1,26 +1,48 @@
-using System.Net.Http.Headers;
 using Microsoft.Graph.Beta;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Services;
 
-public class GraphClientServiceProvider(IHttpClientFactory httpClientFactory)
+public class GraphClientServiceProvider(TeamsAdapter teamsAdapter)
 {
-    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
     private string? _token;
+
+    private GraphServiceClient? _graphServiceClient;
 
     public void SetToken(string? token)
     {
         _token = token;
     }
 
+    public string? GetToken()
+    {
+        return _token;
+    }
+
+    public bool IsAuthenticated()
+    {
+        return _token != null;
+    }
+
     public GraphServiceClient GetAuthenticatedGraphClient()
     {
-        var httpClient = _httpClientFactory.CreateClient("AuthenticatedWebClient");
-        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+        if (_token == null)
+        {
+            throw new UnauthorizedAccessException();
+        }
+
+        if (_graphServiceClient != null)
+        {
+            return _graphServiceClient;
+        }
+
+        var httpClient = teamsAdapter.HttpClientFactory.CreateClient("AuthenticatedWebClient");
+        httpClient.DefaultRequestHeaders.Authorization = new ("Bearer", _token);
         httpClient.DefaultRequestHeaders.Add("ConsistencyLevel", "eventual");
         httpClient.DefaultRequestHeaders.Add("Prefer", "outlook.timezone=\"W. Europe Standard Time\"");
         httpClient.DefaultRequestHeaders.Add("Prefer", "outlook.body-content-type=\"text\"");
 
-        return new GraphServiceClient(httpClient);
+        _graphServiceClient = new (httpClient);
+        return _graphServiceClient;
     }
 }

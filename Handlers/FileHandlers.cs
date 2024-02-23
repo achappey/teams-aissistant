@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using Microsoft.Bot.Builder;
+﻿using Microsoft.Bot.Builder;
 using Microsoft.Teams.AI;
 using TeamsAIssistant.AdaptiveCards;
 using TeamsAIssistant.Extensions;
@@ -40,12 +39,18 @@ namespace TeamsAIssistant.Handlers
         public async Task ShowFilesCard(ITurnContext turnContext, TeamsAIssistantState turnState, CancellationToken cancellationToken, bool newCard = false)
         {
             var assistant = await _assistantService.GetAssistantAsync(turnState.AssistantId);
-            var assistantFiles = await FetchFilesAsync(assistant.FileIds);
-            var conversationFiles = await FetchFilesAsync(turnState.Files);
 
-            FilesCardData filesCardData = new(new CultureInfo(turnContext.Activity.Locale))
+            var assistantFilesTask = FetchFilesAsync(assistant.FileIds);
+            var conversationFilesTask = FetchFilesAsync(turnState.Files);
+
+            await Task.WhenAll(assistantFilesTask, conversationFilesTask);
+
+            var assistantFiles = await assistantFilesTask;
+            var conversationFiles = await conversationFilesTask;
+
+            FilesCardData filesCardData = new(new(turnContext.Activity.Locale))
             {
-                AssistantName = assistant.Name ?? "Assistant",
+                AssistantName = assistant.Name,
                 AssistantFiles = assistantFiles,
                 ConversationFiles = conversationFiles,
                 IsAssistantOwner = assistant.IsOwner(turnContext.Activity.From),
@@ -59,15 +64,9 @@ namespace TeamsAIssistant.Handlers
 
         private async Task<List<Models.File>> FetchFilesAsync(IEnumerable<string> fileIds)
         {
-            var files = new List<Models.File>();
-
-            foreach (var fileId in fileIds)
-            {
-                var file = await _fileService.GetFileAsync(fileId);
-                files.Add(file);
-            }
-
-            return files;
+            var tasks = fileIds.Select(_fileService.GetFileAsync).ToList();
+            var files = await Task.WhenAll(tasks);
+            return [.. files];
         }
     }
 }

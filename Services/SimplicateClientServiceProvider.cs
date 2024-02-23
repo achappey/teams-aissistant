@@ -1,12 +1,13 @@
+using Microsoft.Teams.AI;
 using TeamsAIssistant.Config;
 using TeamsAIssistant.Repositories;
 
 namespace TeamsAIssistant.Services;
 
-public class SimplicateClientServiceProvider(IHttpClientFactory httpClientFactory, KeyVaultRepository keyVaultRepository, IConfiguration configuration)
+public class SimplicateClientServiceProvider(TeamsAdapter teamsAdapter, KeyVaultRepository keyVaultRepository, IConfiguration configuration)
 {
-    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-    private readonly string? _environment = configuration.Get<ConfigOptions>()!.SimplicateVaultName;
+    private readonly string? _vaultName = configuration.Get<ConfigOptions>()!.SimplicateVaultName;
+    private readonly string? _environment = configuration.Get<ConfigOptions>()!.SimplicateVaultName?.Split("-").FirstOrDefault();
     private HttpClient? _httpClient;
 
     public async Task<HttpClient> GetAuthenticatedSimplicateClient(string aadObjectId)
@@ -21,14 +22,27 @@ public class SimplicateClientServiceProvider(IHttpClientFactory httpClientFactor
             throw new ArgumentException("Simplicate configuration missing");
         }
 
-        _httpClient = _httpClientFactory.CreateClient("SimplicateClient");
-        _httpClient.BaseAddress = new Uri($"https://{_environment.Split("-").FirstOrDefault()}.simplicate.nl/api/v2/");
+        var credentials = await GetCredentials(aadObjectId);
 
-        var secret = await keyVaultRepository.GetSecret(_environment, aadObjectId);
+        _httpClient = teamsAdapter.HttpClientFactory.CreateClient("SimplicateClient");
+        _httpClient.BaseAddress = new Uri($"https://{_environment}.simplicate.nl/api/v2/");
 
-        _httpClient.DefaultRequestHeaders.Add("Authentication-Key", secret.Properties.ContentType);
-        _httpClient.DefaultRequestHeaders.Add("Authentication-Secret", secret.Value);
+        _httpClient.DefaultRequestHeaders.Add("Authentication-Key", credentials.Key);
+        _httpClient.DefaultRequestHeaders.Add("Authentication-Secret", credentials.Secret);
 
         return _httpClient;
+    }
+
+    public async Task<(string? Environment, string Key, string Secret)> GetCredentials(string aadObjectId)
+    {
+        if (_environment == null || _vaultName == null)
+        {
+            throw new ArgumentException("Simplicate configuration missing");
+        }
+
+        var secret = await keyVaultRepository.GetSecret(_vaultName, aadObjectId);
+
+        return (Environment: _environment, secret.Properties.ContentType, secret.Value);
+
     }
 }

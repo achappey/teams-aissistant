@@ -1,9 +1,7 @@
-﻿using System.Globalization;
-using Microsoft.Bot.Builder;
+﻿using Microsoft.Bot.Builder;
 using Microsoft.Teams.AI;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using TeamsAIssistant.AdaptiveCards;
 using TeamsAIssistant.Constants;
 using TeamsAIssistant.Extensions;
 using TeamsAIssistant.Services;
@@ -11,17 +9,12 @@ using TeamsAIssistant.State;
 
 namespace TeamsAIssistant.Handlers
 {
-    /// <summary>
-    /// Defines the activity handlers.
-    /// </summary>
     public class AttachmentHandlers
     {
         private readonly AssistantService _assistantService;
         private readonly FileService _fileService;
-        private readonly DownloadService _downloadService;
         private readonly IStorage _storage;
         private readonly ConversationFilesService _conversationFilesService;
-        private readonly ProactiveMessageService _proactiveMessageService;
         public readonly RouteHandler<TeamsAIssistantState> ExportMessagesHandler;
         public readonly ActionSubmitHandler<TeamsAIssistantState> DeleteFileHandler;
         public readonly ActionSubmitHandler<TeamsAIssistantState> DeleteAssistantFileHandler;
@@ -32,14 +25,12 @@ namespace TeamsAIssistant.Handlers
 
         public AttachmentHandlers(AssistantService assistantService, IStorage storage,
             FileService fileService, ConversationFilesService conversationFilesService,
-            FileHandlers fileHandlers, DownloadService downloadService, ProactiveMessageService proactiveMessageService)
+            FileHandlers fileHandlers)
         {
             _assistantService = assistantService;
             _fileService = fileService;
             _conversationFilesService = conversationFilesService;
             _fileHandlers = fileHandlers;
-            _downloadService = downloadService;
-            _proactiveMessageService = proactiveMessageService;
             _storage = storage;
 
             DeleteFileHandler = HandleDeleteFileAsync;
@@ -50,8 +41,8 @@ namespace TeamsAIssistant.Handlers
             ExportButtonHandler = HandleExportMessageButtonAsync;
         }
 
-
-        private async Task HandleAddToChatAsync(ITurnContext turnContext, TeamsAIssistantState turnState, object data, CancellationToken cancellationToken)
+        private async Task HandleAddToChatAsync(ITurnContext turnContext, TeamsAIssistantState turnState, 
+            object data, CancellationToken cancellationToken)
         {
             var jObject = JObject.FromObject(data);
             var fileUrl = jObject["FileUrl"]?.Value<string>();
@@ -111,7 +102,7 @@ namespace TeamsAIssistant.Handlers
 
         private async Task HandleAttachFileAsync(ITurnContext turnContext, TeamsAIssistantState turnState, object data, CancellationToken cancellationToken)
         {
-            var attachFileIds = JObject.FromObject(data)[AssistantForm.FileIds]?.Value<string>()?.Split(",");
+            var attachFileIds = JObject.FromObject(data)[AssistantForm.FileIds]?.Value<string>()?.ToStringList();
 
             if (attachFileIds != null)
             {

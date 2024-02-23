@@ -15,11 +15,80 @@
   <data name="ResetConversationText" xml:space="preserve">
     <value>Conversatie resetten</value>
   </data>  
+  <data name="SitesText" xml:space="preserve">
+    <value>Sites</value>
+  </data>  
+  <data name="ListItemText" xml:space="preserve">
+    <value>Lijstitem</value>
+  </data>  
+  <data name="ChannelMessageText" xml:space="preserve">
+    <value>Kanaalbericht</value>
+  </data>  
+  <data name="SitePageText" xml:space="preserve">
+    <value>Pagina</value>
+  </data>  
+  <data name="DriveItemText" xml:space="preserve">
+    <value>Document</value>
+  </data>  
+  <data name="FilterText" xml:space="preserve">
+    <value>Filters</value>
+  </data>  
+  <data name="NoFilterText" xml:space="preserve">
+    <value>Geen filters</value>
+  </data>  
+  <data name="ContextLengthText" xml:space="preserve">
+    <value>Gespreksdiepte</value>
+  </data> 
+  <data name="MediumContextText" xml:space="preserve">
+    <value>Gemiddeld - Voor meer details</value>
+  </data> 
+  <data name="AdditionalInstructionsContextText" xml:space="preserve">
+    <value>Achtergrondinformatie</value>
+  </data> 
+  <data name="AdditionalInstructionsContextTitleText" xml:space="preserve">
+    <value>Gebruik als achtergrond informatie</value>
+  </data> 
+  <data name="LongContextText" xml:space="preserve">
+    <value>Lang - Voor uitgebreide gesprekken</value>
+  </data> 
+  <data name="ShortContextText" xml:space="preserve">
+    <value>Kort - Voor snelle gesprekken</value>
+  </data> 
+  <data name="MaxCitationsText" xml:space="preserve">
+    <value>Maximaal aantal bronvermeldingen</value>
+  </data>  
+  <data name="MaxCitationsPlaceholderText" xml:space="preserve">
+    <value>Optioneel, beperk het aantal bronvermeldingen</value>
+  </data>  
+  <data name="ProjectsText" xml:space="preserve">
+    <value>Projecten</value>
+  </data>  
+  <data name="OptionsText" xml:space="preserve">
+    <value>Opties</value>
+  </data>  
+  <data name="SourceText" xml:space="preserve">
+    <value>Bronnen</value>
+  </data>  
+  <data name="QuoteText" xml:space="preserve">
+    <value>Citaat/samenvatting</value>
+  </data>  
+  <data name="CreatedYearText" xml:space="preserve">
+    <value>Gemaakt</value>
+  </data> 
+  <data name="TeamsText" xml:space="preserve">
+    <value>Teams</value>
+  </data> 
   <data name="RetrievalText" xml:space="preserve">
     <value>Documentlezer (Word, PDF)</value>
   </data> 
    <data name="CodeInterpreterText" xml:space="preserve">
     <value>Scriptverwerker (Excel, CSV)</value>
+  </data> 
+  <data name="NoSourceText" xml:space="preserve">
+    <value>Geen systeemgeheugen</value>
+  </data> 
+  <data name="SourcesText" xml:space="preserve">
+    <value>bron(nen)</value>
   </data> 
   <data name="ConversationText" xml:space="preserve">
     <value>Conversatie</value>
@@ -93,9 +162,21 @@
   <data name="FileText" xml:space="preserve">
     <value>Bestand</value>
   </data> 
+  <data name="RelevanceText" xml:space="preserve">
+    <value>Relevantie</value>
+  </data> 
   <data name="NoFilesText" xml:space="preserve">
     <value>Geen bestanden</value>
   </data>  
+  <data name="ExtensionsText" xml:space="preserve">
+    <value>Uitbreidingen</value>
+  </data> 
+  <data name="MinRelevanceText" xml:space="preserve">
+    <value>Minimale relevantie</value>
+  </data> 
+  <data name="KernelMemoryText" xml:space="preserve">
+    <value>Systeemgeheugen</value>
+  </data> 
   <data name="AdditionalInstructionsPlaceholderText" xml:space="preserve">
     <value>Voeg aanvullende instructies toe aan het einde van de instructies voor het gesprek. Dit is handig om het gedrag tijdens het gesprek te wijzigen zonder andere instructies te negeren.</value>
   </data> 

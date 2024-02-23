@@ -5,11 +5,12 @@ using System.ComponentModel;
 using TeamsAIssistant.Services;
 using TeamsAIssistant.Repositories;
 using TeamsAIssistant.Attributes;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.CBS
 {
-    public class CBSStatLineMilieuRekeningenPlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, IHttpClientFactory httpClientFactory)
-        : CBSStatLineBasePlugin(proactiveMessageService, driveRepository, httpClientFactory, "Milieurekeningen")
+    public class CBSStatLineMilieuRekeningenPlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, TeamsAdapter teamsAdapter)
+        : CBSStatLineBasePlugin(proactiveMessageService, driveRepository, teamsAdapter, "Milieurekeningen")
     {
         [Action("CBS.Milieurekeningen.GetKerncijfersAfvalbalans")]
         [Description("Deze tabel bevat cijfers over de hoeveelheid afval die vrijkomt (herkomst) en waar het naar toe gaat (bestemming). Bij de herkomst wordt onderscheid gemaakt tussen herkomst uit de Nederlandse economie en het buitenland. Bij de bestemming van afval wordt onderscheid gemaakt naar verwerkingsmethoden in Nederland (hergebruik, verbranden en storten/lozen) en export")]

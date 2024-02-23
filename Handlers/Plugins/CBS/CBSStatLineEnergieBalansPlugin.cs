@@ -5,11 +5,12 @@ using System.ComponentModel;
 using TeamsAIssistant.Services;
 using TeamsAIssistant.Repositories;
 using TeamsAIssistant.Attributes;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.CBS
 {
-    public class CBSStatLineEnergieBalansPlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, IHttpClientFactory httpClientFactory)
-        : CBSStatLineBasePlugin(proactiveMessageService, driveRepository, httpClientFactory, "Energiebalans")
+    public class CBSStatLineEnergieBalansPlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, TeamsAdapter teamsAdapter)
+        : CBSStatLineBasePlugin(proactiveMessageService, driveRepository, teamsAdapter, "Energiebalans")
     {
         [Action("CBS.Energie.GetEnergiebalans")]
         [Description("Deze tabel bevat cijfers over het aanbod, de omzetting en het verbruik van energie. Energie komt onder andere vrij bij de verbranding van bijvoorbeeld aardgas, aardolie, steenkool en biobrandstoffen. Energie kan ook worden verkregen uit elektriciteit of warmte of worden onttrokken aan de natuur, bijvoorbeeld windkracht of zonne-energie. In de energiestatistiek heten al deze bronnen waaruit energie kan worden gebruikt 'energiedragers'")]

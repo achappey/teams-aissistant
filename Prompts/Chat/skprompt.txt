@@ -1,0 +1,15 @@
+Above you see the message history and the latest message of a user to an AI-bot.
+We need to perform a semantic search on a large vector database to extract key information for the user.
+Please create a semantic search query, we would like it to be more intelligent than only the last prompt.
+
+Please analyze the history in combination with the last user message.
+Create a comprehensive search query that contains all information for an AI get the best results from the vector database search.
+
+[RULES]
+DON'T WASTE WORDS.
+USE SHORT, CLEAR, COMPLETE SENTENCES.
+DO NOT USE BULLET POINTS OR DASHES.
+MAXIMIZE DETAIL, MEANING.
+FOCUS ON THE CONTENT.
+ONLY ANSWER WITH THE SEARCH QUERY, DONT INCLUDE OTHER WORDS/SENTENCES.
+[END RULES]

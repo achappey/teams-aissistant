@@ -5,15 +5,16 @@ using System.ComponentModel;
 using TeamsAIssistant.Services;
 using TeamsAIssistant.Repositories;
 using TeamsAIssistant.Attributes;
-using TeamsAIssistant.Extensions;
 using Microsoft.Bot.Schema;
 using TeamsAIssistant.Constants;
+using TeamsAIssistant.Handlers.Plugins.AzureMaps.Extensions;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.AzureMaps
 {
-    public class AzureMapsRenderPlugin(IConfiguration configuration, IHttpClientFactory httpClientFactory,
+    public class AzureMapsRenderPlugin(IConfiguration configuration, TeamsAdapter teamsAdapter,
             ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) 
-            : AzureMapsBasePlugin(configuration, httpClientFactory, proactiveMessageService, driveRepository, "Azure Maps Render")
+            : AzureMapsBasePlugin(configuration, teamsAdapter, proactiveMessageService, driveRepository, "Azure Maps Render")
     {
         private const string MAPS_BASE_URL = "map";
 

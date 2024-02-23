@@ -41,20 +41,38 @@ namespace TeamsAIssistant.Handlers.Plugins.Graph
                             }));
         }
 
-        [Action("MicrosoftGraph.GetOneDriveBySiteId")]
-        [Description("Gets a OneDrive by a site id")]
+        /*  [Action("MicrosoftGraph.GetOneDriveBySiteId")]
+          [Description("Gets a OneDrive by a site id")]
+          [Parameter(name: "siteId", type: "string", required: true, description: "Id of the site")]
+          public Task<string> GetOneDriveBySiteId([ActionTurnContext] TurnContext turnContext, [ActionTurnState] TeamsAIssistantState turnState,
+            [ActionName] string actionName, [ActionParameters] Dictionary<string, object> parameters)
+          {
+              return ExecuteGraphQuery(
+                  turnContext, turnState, actionName, parameters,
+                  (graphClient, paramDict) => graphClient.Sites[parameters["siteId"].ToString()].Drive
+                              .GetAsync(conf =>
+                              {
+                                  conf.QueryParameters.Expand = ["root"];
+                              }));
+          }
+  */
+        [Action("MicrosoftGraph.GetOneDrivesBySiteId")]
+        [Description("Gets OneDrives by site id")]
         [Parameter(name: "siteId", type: "string", required: true, description: "Id of the site")]
-        public Task<string> GetOneDriveBySiteId([ActionTurnContext] TurnContext turnContext, [ActionTurnState] TeamsAIssistantState turnState,
-          [ActionName] string actionName, [ActionParameters] Dictionary<string, object> parameters)
+        public Task<string> GetOneDrivesBySiteId([ActionTurnContext] TurnContext turnContext, [ActionTurnState] TeamsAIssistantState turnState,
+            [ActionName] string actionName, [ActionParameters] Dictionary<string, object> parameters)
         {
             return ExecuteGraphQuery(
                 turnContext, turnState, actionName, parameters,
-                (graphClient, paramDict) => graphClient.Sites[parameters["siteId"].ToString()].Drive
-                            .GetAsync(conf =>
-                            {
-                                conf.QueryParameters.Expand = ["root"];
-                            }));
+                async (graphClient, paramDict) =>
+                    {
+                        var result = await graphClient.Sites[parameters["siteId"].ToString()].Drives
+                            .GetAsync();
+
+                        return result?.Value;
+                    });
         }
+
 
         [Action("MicrosoftGraph.GetOneDriveChildren")]
         [Description("Gets children of a drive item")]
@@ -75,6 +93,6 @@ namespace TeamsAIssistant.Handlers.Plugins.Graph
                     });
         }
 
-   
+
     }
 }

@@ -7,13 +7,14 @@ using TeamsAIssistant.Repositories;
 using TeamsAIssistant.Extensions;
 using TeamsAIssistant.Handlers.Plugins.CBS.Models;
 using TeamsAIssistant.Attributes;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.CBS
 {
-    public class CBSConjunctuurKlokPlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, IHttpClientFactory httpClientFactory)
+    public class CBSConjunctuurKlokPlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, TeamsAdapter teamsAdapter)
         : PluginBase(driveRepository, proactiveMessageService, "Conjunctuurklok", "CBS", "Dashboard-economie", "v1")
     {
-        private readonly HttpClient client = httpClientFactory.GetDefaultClient($"https://www.cbs.nl/nl-nl/visualisaties/dashboard-economie/conjunctuur/conjunctuur", "Conjunctuurklok");
+        private readonly HttpClient client = teamsAdapter.GetDefaultClient($"https://www.cbs.nl/nl-nl/visualisaties/dashboard-economie/conjunctuur/conjunctuur", "Conjunctuurklok");
 
         [Action("CBS.GetConjunctuurKlok")]
         [Description("De Conjunctuurklok is een hulpmiddel voor het bepalen van de stand en het verloop van de Nederlandse conjunctuur. In de Conjunctuurklok komt vrijwel alle belangrijke economische informatie samen die het CBS tijdens de afgelopen maand c.q. het afgelopen kwartaal heeft gepubliceerd. Een belangrijk kenmerk van de conjunctuur is dat deze cyclisch verloopt. Perioden van hoge groei wisselen af met perioden van nauwelijks groei, of zelfs van krimp")]

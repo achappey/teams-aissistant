@@ -11,7 +11,7 @@ public class CardData(CultureInfo cultureInfo)
     public string? Header { get; set; }
     public string? SubTitle { get; set; }
 
-    protected ResourceManager ResourceManager { get; } = new ResourceManager("AIssistant.Resources.Translations.Cards", Assembly.GetExecutingAssembly());
+    protected ResourceManager ResourceManager { get; } = new("AIssistant.Resources.Translations.Cards", Assembly.GetExecutingAssembly());
     public CultureInfo CultureInfo { get; set; } = cultureInfo;
 
     protected string? GetResourceString(string name)

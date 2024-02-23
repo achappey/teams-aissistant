@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using Microsoft.Graph.Beta;
 using Newtonsoft.Json.Linq;
 using Microsoft.Graph.Beta.Models;
+using TeamsAIssistant.Extensions;
 
 namespace TeamsAIssistant.Handlers.Plugins.Graph
 {
@@ -70,8 +71,8 @@ namespace TeamsAIssistant.Handlers.Plugins.Graph
             return SubmitActionAsync(turnContext, turnState, "MicrosoftGraph.CreateSiteListItem", data,
                 async (GraphServiceClient graphClient, JObject? jObject) =>
                 {
-                    var fieldNames = jObject?["fields"]?.ToString()?.Split(",");
-                    var fieldValues = jObject?["values"]?.ToString()?.Split(",");
+                    var fieldNames = jObject?["fields"]?.ToString()?.ToStringList();
+                    var fieldValues = jObject?["values"]?.ToString()?.ToStringList();
                     var items = fieldNames?.Zip(fieldValues!, (name, value) => new { name, value })
                             .ToDictionary(x => x.name, x => (object)x.value);
 

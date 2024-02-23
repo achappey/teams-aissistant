@@ -21,6 +21,81 @@
   <data name="OrganizationText" xml:space="preserve">
     <value>Organization</value>
   </data> 
+  <data name="SitesText" xml:space="preserve">
+    <value>Sites</value>
+  </data>  
+  <data name="SourceText" xml:space="preserve">
+    <value>Sources</value>
+  </data>   
+  <data name="AdditionalInstructionsContextText" xml:space="preserve">
+    <value>Background knowledge</value>
+  </data> 
+  <data name="AdditionalInstructionsContextTitleText" xml:space="preserve">
+    <value>Use as background knowledge</value>
+  </data> 
+  <data name="ContextLengthText" xml:space="preserve">
+    <value>Conversation depth</value>
+  </data> 
+  <data name="MinRelevanceText" xml:space="preserve">
+    <value>Minimal relevance</value>
+  </data> 
+  <data name="KernelMemoryText" xml:space="preserve">
+    <value>System memory</value>
+  </data> 
+  <data name="MediumContextText" xml:space="preserve">
+    <value>Medium - For more details</value>
+  </data> 
+  <data name="LongContextText" xml:space="preserve">
+    <value>Long - For in-depth conversations</value>
+  </data> 
+  <data name="ShortContextText" xml:space="preserve">
+    <value>Short - For quick conversations</value>
+  </data> 
+  <data name="MaxCitationsText" xml:space="preserve">
+    <value>Maximum number of citations</value>
+  </data>  
+  <data name="MaxCitationsPlaceholderText" xml:space="preserve">
+    <value>Optional, limit the number of citations</value>
+  </data>  
+  <data name="OptionsText" xml:space="preserve">
+    <value>Options</value>
+  </data>  
+  <data name="ProjectsText" xml:space="preserve">
+    <value>Projects</value>
+  </data>  
+  <data name="CreatedYearText" xml:space="preserve">
+    <value>Created</value>
+  </data> 
+  <data name="QuoteText" xml:space="preserve">
+    <value>Quote/summary</value>
+  </data>  
+  <data name="ListItemText" xml:space="preserve">
+    <value>Listitem</value>
+  </data>  
+  <data name="ChannelMessageText" xml:space="preserve">
+    <value>Channel message</value>
+  </data>  
+  <data name="SitePageText" xml:space="preserve">
+    <value>Page</value>
+  </data>  
+  <data name="DriveItemText" xml:space="preserve">
+    <value>Document</value>
+  </data>  
+  <data name="FilterText" xml:space="preserve">
+    <value>Filters</value>
+  </data>  
+  <data name="NoFilterText" xml:space="preserve">
+    <value>No filters</value>
+  </data>  
+  <data name="TeamsText" xml:space="preserve">
+    <value>Teams</value>
+  </data> 
+  <data name="SourcesText" xml:space="preserve">
+    <value>source(s)</value>
+  </data> 
+    <data name="NoSourceText" xml:space="preserve">
+    <value>No system memory</value>
+  </data> 
   <data name="UsageText" xml:space="preserve">
     <value>Usage</value>
   </data> 
@@ -30,8 +105,14 @@
   <data name="NoTeamText" xml:space="preserve">
     <value>No team</value>
   </data> 
+  <data name="RelevanceText" xml:space="preserve">
+    <value>Relevance</value>
+  </data> 
   <data name="RetrievalText" xml:space="preserve">
     <value>Document reader (Word, PDF)</value>
+  </data> 
+  <data name="ExtensionsText" xml:space="preserve">
+    <value>Extensions</value>
   </data> 
    <data name="CodeInterpreterText" xml:space="preserve">
     <value>Code interpreter (Excel, CSV)</value>

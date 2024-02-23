@@ -1,11 +1,8 @@
-
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Teams.AI.AI.OpenAI.Models;
 using OpenAI;
 using OpenAI.Assistants;
 using OpenAI.Threads;
 using TeamsAIssistant.Extensions;
-using TeamsAIssistant.Models;
 
 namespace TeamsAIssistant.Services
 {
@@ -27,6 +24,14 @@ namespace TeamsAIssistant.Services
       return _openAIDotNet.AssistantsEndpoint.DeleteAssistantAsync(assistantId);
     }
 
+    public async Task<IEnumerable<Models.Message>> GetLastMessages(string threadId, int items = 5)
+    {
+      var query = new ListQuery(limit: items);
+      var response = await _openAIDotNet.ThreadsEndpoint.ListMessagesAsync(threadId, query);
+
+      return response.Items.Select(Extensions.AssistantExtensions.ToMessage);
+    }
+
     public async Task<IEnumerable<Models.Message>> GetThreadMessagesAsync(string threadId)
     {
       List<Models.Message> allMessages = [];
@@ -35,7 +40,8 @@ namespace TeamsAIssistant.Services
 
       while (hasMore)
       {
-        var query = new ListQuery() { Limit = 100 };
+        var query = new ListQuery(limit: 100);
+
         if (!string.IsNullOrEmpty(lastId))
         {
           query.After = lastId;
@@ -45,15 +51,7 @@ namespace TeamsAIssistant.Services
 
         if (response.Items != null && response.Items.Any())
         {
-          allMessages.AddRange(response.Items.Select(t => new Models.Message()
-          {
-            Id = t.Id,
-            CreatedAt = t.CreatedAt,
-            Role = t.Role.ToString(),
-            Content = t.Content != null && t.Content.Where(r => r.Text != null).Any()
-              ? t.Content.Where(r => r.Text != null)?.FirstOrDefault()?.Text?.Value ?? string.Empty
-                : string.Empty
-          }));
+          allMessages.AddRange(response.Items.Select(Extensions.AssistantExtensions.ToMessage));
         }
 
         lastId = response.Items?.LastOrDefault()?.Id;
@@ -81,7 +79,7 @@ namespace TeamsAIssistant.Services
       var updateAssistantRequest = new CreateAssistantRequest(name: assistant.Name,
         description: assistant.Description,
         instructions: assistant.Instructions,
-        tools: assistant.Tools?.Select(t => t.ToTool()),
+        tools: assistant.Tools?.Select(Extensions.AssistantExtensions.ToTool),
         model: assistant.Model,
         metadata: assistant.Metadata?.ToDictionary(e => e.Key, e => e.Value?.ToString()));
 
@@ -101,7 +99,7 @@ namespace TeamsAIssistant.Services
     {
       var updateAssistantRequest = new CreateAssistantRequest(name: assistant.Name,
         description: assistant.Description ?? string.Empty,
-        tools: assistant.Tools?.Select(y => y.ToTool()),
+        tools: assistant.Tools?.Select(Extensions.AssistantExtensions.ToTool),
         instructions: assistant.Instructions,
         model: assistant.Model,
         metadata: assistant.Metadata?.ToDictionary(e => e.Key, e => e.Value?.ToString()));
@@ -111,12 +109,10 @@ namespace TeamsAIssistant.Services
       return response.ToAssistant();
     }
 
-    public async Task<List<Assistant>> GetAssistantsAsync()
+    public async Task<IEnumerable<Assistant>> GetAssistantsAsync()
     {
       var response = await _openAIDotNet.AssistantsEndpoint.ListAssistantsAsync();
-      var items = response.Items.Select(a => a.ToAssistant());
-
-      return items.ToList();
+      return response.Items.Select(Extensions.AssistantExtensions.ToAssistant);
     }
 
     private async Task<IEnumerable<RunResponse>> GetAllThreadRunsAsync(string threadId)
@@ -127,7 +123,8 @@ namespace TeamsAIssistant.Services
 
       while (hasMore)
       {
-        var query = new ListQuery() { Limit = 100 };
+        var query = new ListQuery(limit: 100);
+
         if (!string.IsNullOrEmpty(lastId))
         {
           query.After = lastId;

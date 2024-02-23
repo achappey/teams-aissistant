@@ -15,6 +15,31 @@ namespace TeamsAIssistant.Extensions
             return state.Temp.AuthTokens.ContainsKey(Auth.Graph);
         }
 
+        public static bool HasIndexes(this TeamsAIssistantState state)
+        {
+            return state.HasSiteIndexes() || state.HasTeamIndexes() || state.HasSimplicateIndexes() || state.HasDriveIndexes();
+        }
+
+        public static bool HasDriveIndexes(this TeamsAIssistantState state)
+        {
+            return state.DriveIndexes.Count != 0;
+        }
+
+        public static bool HasSiteIndexes(this TeamsAIssistantState state)
+        {
+            return state.SiteIndexes.Count != 0;
+        }
+
+        public static bool HasSimplicateIndexes(this TeamsAIssistantState state)
+        {
+            return state.SimplicateIndexes.Count != 0;
+        }
+
+        public static bool HasTeamIndexes(this TeamsAIssistantState state)
+        {
+            return state.TeamIndexes.Count != 0;
+        }
+
         public static string GetModel(this TeamsAIssistantState state, Assistant assistant)
         {
             return !string.IsNullOrEmpty(state.Model) ? state.Model : assistant.Model;
@@ -22,7 +47,7 @@ namespace TeamsAIssistant.Extensions
 
         public static string? GetGraphToken(this TeamsAIssistantState state)
         {
-            return state.Temp.AuthTokens.ContainsKey(Auth.Graph) ? state.Temp.AuthTokens[Auth.Graph] : null;
+            return state.Temp.AuthTokens.TryGetValue(Auth.Graph, out string? value) ? value : null;
         }
 
         public static void EnsureTool(this TeamsAIssistantState turnState, Tool tool, IEnumerable<Tool> assistantTools)

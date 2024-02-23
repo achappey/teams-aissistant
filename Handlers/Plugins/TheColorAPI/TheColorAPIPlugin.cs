@@ -7,13 +7,14 @@ using TeamsAIssistant.Repositories;
 using TeamsAIssistant.Attributes;
 using TeamsAIssistant.Constants;
 using TeamsAIssistant.Extensions;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.SchoolHolidays
 {
-    public class TheColorAPIPlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, IHttpClientFactory httpClientFactory) 
+    public class TheColorAPIPlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, TeamsAdapter teamsAdapter) 
         : PluginBase(driveRepository, proactiveMessageService, "Colors", "GitHub", "The Color API", "v1")
     {
-        private readonly HttpClient client = httpClientFactory.GetDefaultClient($"https://www.thecolorapi.com/", "TheColorAPI");
+        private readonly HttpClient client = teamsAdapter.GetDefaultClient($"https://www.thecolorapi.com/", "TheColorAPI");
 
         [Action("GitHub.GetColorIdentification")]
         [Description("Return available identifying information on the given color")]

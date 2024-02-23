@@ -7,7 +7,7 @@ using TeamsAIssistant.Repositories;
 using TeamsAIssistant.Attributes;
 using OpenAI.Managers;
 
-namespace TeamsAIssistant.Handlers.Plugins.Graph
+namespace TeamsAIssistant.Handlers.Plugins.AI
 {
     public class OpenAIImagesPlugin(OpenAIService openAIService, ProactiveMessageService proactiveMessageService,
         DriveRepository driveRepository) : OpenAIBasePlugin(openAIService, proactiveMessageService, driveRepository, "Images")

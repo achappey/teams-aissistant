@@ -22,5 +22,11 @@ public class File
     [JsonPropertyName("content")]
     public byte[]? Content { get; set; }
 
-    public string CreatedAtString { get { return CreatedAt.ToString(); } }
+    public string CreatedAtString
+    {
+        get
+        {
+            return CreatedAt.ToString();
+        }
+    }
 }

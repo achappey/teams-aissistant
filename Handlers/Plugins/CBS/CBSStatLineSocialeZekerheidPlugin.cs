@@ -5,11 +5,12 @@ using System.ComponentModel;
 using TeamsAIssistant.Services;
 using TeamsAIssistant.Repositories;
 using TeamsAIssistant.Attributes;
+using Microsoft.Teams.AI;
 
 namespace TeamsAIssistant.Handlers.Plugins.CBS
 {
-    public class CBSStatLineSocialeZekerheidPlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, IHttpClientFactory httpClientFactory)
-        : CBSStatLineBasePlugin(proactiveMessageService, driveRepository, httpClientFactory, "Sociale Zekerheid")
+    public class CBSStatLineSocialeZekerheidPlugin(ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, TeamsAdapter teamsAdapter)
+        : CBSStatLineBasePlugin(proactiveMessageService, driveRepository, teamsAdapter, "Sociale Zekerheid")
     {
         [Action("CBS.SocialeZekerheid.GetKerncijfers")]
         [Description("Deze tabel geeft een actueel overzicht van de belangrijkste statistische cijfers over de sociale zekerheid. De cijfers hebben betrekking op uitkeringen in het kader van arbeidsongeschiktheid, werkloosheid, bijstand, ouderen, nabestaanden en kinderbijslag (de volksverzekeringen AOW, Anw en AKW)")]

@@ -34,7 +34,7 @@ namespace TeamsAIssistant.Repositories
       var graphClient = _graphClientServiceProvider.GetAuthenticatedGraphClient();
       var (Hostname, Path, PageName) = url.ExtractSharePointValues();
 
-      var site = await graphClient.Sites[Hostname + ":/sites/" + Path].GetAsync();
+      var site = await graphClient.Sites[$"{Hostname}:/sites/{Path}"].GetAsync();
       var pages = await graphClient.Sites[site?.Id].Pages.GraphSitePage.GetAsync((config) =>
       {
         config.QueryParameters.Select = ["name", "id", "title", "webUrl", "createdDateTime", "createdBy"];
@@ -78,7 +78,7 @@ namespace TeamsAIssistant.Repositories
 
         return new Models.File()
         {
-          Filename = page?.Title + ".html" ?? string.Empty,
+          Filename = $"{page?.Title}.html" ?? string.Empty,
           Content = Encoding.UTF8.GetBytes(htmlString)
         };
       }

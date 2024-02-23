@@ -1,5 +1,4 @@
 using Microsoft.Teams.AI.AI.OpenAI.Models;
-using OpenAI;
 using TeamsAIssistant.Config;
 using TeamsAIssistant.Constants;
 using TeamsAIssistant.Extensions;
@@ -36,9 +35,11 @@ namespace TeamsAIssistant.Services
     public async Task<Assistant> CloneAssistantAsync(string currentUserId, string assistantId)
     {
       var assistant = await GetAssistantAsync(assistantId);
-      var ownerVisibility = Enum.GetName(Visibility.Owners);
+
       assistant.Name += new Random().Next(1000);
-      assistant.Metadata = assistant.Metadata?.WithOwner(currentUserId).WithVisibility(ownerVisibility);
+      assistant.Metadata = assistant.Metadata?
+        .WithOwner(currentUserId)
+        .WithVisibility(Enum.GetName(Visibility.Owners));
 
       return await assistantRepository.CreateAssistantAsync(assistant);
     }
@@ -63,6 +64,11 @@ namespace TeamsAIssistant.Services
       return assistantRepository.UpdateAssistantAsync(assistant);
     }
 
+    public Task<IEnumerable<Message>> GetLastMessages(string threadId, int items = 5)
+    {
+      return assistantRepository.GetLastMessages(threadId, items);
+    }
+
     public Task<IEnumerable<Message>> GetThreadMessagesAsync(string threadId)
     {
       return assistantRepository.GetThreadMessagesAsync(threadId);
@@ -76,8 +82,8 @@ namespace TeamsAIssistant.Services
       }
 
       var assistants = await assistantRepository.GetAssistantsAsync();
-      var joinedTeams = await userService.GetJoinedTeams(currentUserId);
-      string[] teamIds = joinedTeams?.Select(t => t.Id!).ToArray() ?? [];
+      var joinedTeams = userService != null ? await userService.GetJoinedTeams(currentUserId) : [];
+      var teamIds = joinedTeams.Select(t => t.Id!).ToArray();
 
       return assistants.Where(t =>
            t.Metadata == null ||

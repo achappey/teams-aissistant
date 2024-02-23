@@ -1,6 +1,6 @@
 using TeamsAIssistant.Handlers.Plugins.BAG.Models;
 
-namespace TeamsAIssistant.Extensions;
+namespace TeamsAIssistant.Handlers.Plugins.BAG.Extensions;
 
 internal static class BagExtensions
 {

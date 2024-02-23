@@ -27,9 +27,9 @@ public class AssistantCardData(CultureInfo cultureInfo) : CardData(cultureInfo)
         }
     }
 
-    public string? SelectedToolNames => Tools != null && Tools.Any() ? string.Join(", ", Tools.Select(r => ToToolText(r))) : null;
+    public string? SelectedToolNames => Tools != null && Tools.Any() ? string.Join(", ", Tools.Select(ToToolText)) : null;
     public string? SelectedVisibilityName => ToVisibilityText(Visibility);
-    public string? SelectedToolValues => Tools != null && Tools.Any() ? string.Join(',', Tools.Select(r => r)) : null;
+    public string? SelectedToolValues => Tools != null && Tools.Any() ? string.Join(',', Tools) : null;
 
     public string? SelectedTeam => Assistant?.GetTeam();
 

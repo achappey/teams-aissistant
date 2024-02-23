@@ -4,22 +4,20 @@ namespace TeamsAIssistant.Repositories
 {
   public class FileRepository(OpenAIService openAIBetalgo)
   {
-    private readonly OpenAIService _openAIBetalgo = openAIBetalgo;
-
     public async Task<bool> DeleteFileAsync(string fileId)
     {
-      var response = await _openAIBetalgo.Files.DeleteFile(fileId);
+      var response = await openAIBetalgo.Files.DeleteFile(fileId);
 
       return response.Deleted;
     }
 
     public async Task<Models.File> UploadFileAsync(string filename, byte[] file)
     {
-      var response = await _openAIBetalgo.Files.UploadFile("assistants", file, filename);
+      var response = await openAIBetalgo.Files.UploadFile("assistants", file, filename);
 
       if (response.Error != null)
       {
-        throw new Exception(response.Error.Message);
+        throw new HttpRequestException(response.Error.Message);
       }
 
       return new Models.File()
@@ -31,7 +29,7 @@ namespace TeamsAIssistant.Repositories
 
     public async Task<Models.File> GetFileAsync(string fileId)
     {
-      var response = await _openAIBetalgo.Files.RetrieveFile(fileId);
+      var response = await openAIBetalgo.Files.RetrieveFile(fileId);
 
       return new Models.File()
       {

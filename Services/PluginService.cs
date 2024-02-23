@@ -23,13 +23,12 @@ namespace TeamsAIssistant.Services
       {
         typeEntry.SlidingExpiration = TimeSpan.FromHours(24);
         return Assembly.GetExecutingAssembly().GetTypes()
-          .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(PluginBase)))
-          .ToList();
+          .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(PluginBase)));
       });
 
-        var result = new List<Plugin>(pluginTypes!.Count);
+        var result = new List<Plugin>(pluginTypes != null ? pluginTypes.Count() : 0);
 
-        foreach (var type in pluginTypes)
+        foreach (var type in pluginTypes ?? [])
         {
           if (serviceProvider.GetService(type) is PluginBase pluginInstance)
           {
