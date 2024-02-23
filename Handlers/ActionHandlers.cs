@@ -36,11 +36,8 @@ namespace TeamsAIssistant.Handlers
             [ActionTurnState] TeamsAIssistantState turnState,
             [ActionParameters] Dictionary<string, object> parameters)
         {
-            // Extract the filename from the parameters dictionary.
             var filename = parameters["filename"].ToString();
 
-            // Check if the user is authenticated, the filename is not null or empty,
-            // and the file content is available as a byte array.
             if (turnState.IsAuthenticated() && !string.IsNullOrEmpty(filename)
                 && parameters["fileContent"] is byte[] fileContent)
             {
@@ -59,7 +56,6 @@ namespace TeamsAIssistant.Handlers
             [ActionTurnContext] ITurnContext turnContext,
             [ActionParameters] Dictionary<string, object> parameters)
         {
-            var dads = parameters["citation"].ToString();
             var citationsCard = new CitationCardData(new(turnContext.Activity.Locale))
             {
                 Citation = parameters["citation"] as Citation
