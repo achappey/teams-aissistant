@@ -10,8 +10,7 @@ namespace TeamsAIssistant.Services
 {
   public class IndexService(IConfiguration configuration,
     TeamsAdapter teamsAdapter,
-    GraphClientServiceProvider? graphClientServiceProvider = null,
-    SimplicateClientServiceProvider? simplicateClientServiceProvider = null)
+    GraphClientServiceProvider? graphClientServiceProvider = null)
   {
     private readonly QueueClient _indexQueue = new(configuration.Get<ConfigOptions>()!.IndexQueue, "index-items");
     private readonly HttpClient _client = teamsAdapter.HttpClientFactory.CreateClient("VectorSearch");
@@ -57,22 +56,11 @@ namespace TeamsAIssistant.Services
       await _indexQueue.SendMessageAsync(base64EncodedMessage);
     }
 
-    public async Task AddSimplicateVectorIndex(string aadObjectId)
+    public async Task AddSimplicateVectorIndex()
     {
-      if (simplicateClientServiceProvider == null)
-      {
-        throw new UnauthorizedAccessException();
-      }
-
-      var simplicateCredentials = await simplicateClientServiceProvider.GetCredentials(aadObjectId);
       var request = new
       {
-        Simplicate = new
-        {
-          simplicateCredentials.Environment,
-          simplicateCredentials.Key,
-          simplicateCredentials.Secret,
-        }
+        Simplicate = true
       };
 
       var base64EncodedMessage = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request)));

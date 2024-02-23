@@ -56,7 +56,7 @@ namespace TeamsAIssistant.Handlers.Plugins.AI
         {
             await SendFunctionCard(turnContext, actionName, parameters);
 
-            await indexService.AddSimplicateVectorIndex(turnContext.Activity.From.AadObjectId);
+            await indexService.AddSimplicateVectorIndex();
 
             return $"Index requested. Items will be indexed, but it can take a while.";
         }

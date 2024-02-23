@@ -156,7 +156,7 @@ namespace TeamsAIssistant.DataSources
             {
                 UpdateIndexes(memory.SiteIndexes, async site => await indexService.AddSiteToVectorIndex(site));
                 UpdateIndexes(memory.TeamIndexes, async team => await indexService.AddTeamToVectorIndex(team));
-                UpdateIndexes(memory.SimplicateIndexes, async team => await indexService.AddSimplicateVectorIndex(context.Activity.From.AadObjectId));
+                UpdateIndexes(memory.SimplicateIndexes, async team => await indexService.AddSimplicateVectorIndex());
             }
 
             int length = 0;
