@@ -46,14 +46,14 @@ namespace TeamsAIssistant.Extensions
             return query.ToString();
         }
 
-        public static async Task<string> GetHttpResponseResult(this HttpResponseMessage response)
+        public static Task<string> GetHttpResponseResult(this HttpResponseMessage response)
         {
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadAsStringAsync();
+                return response.Content.ReadAsStringAsync();
             }
 
-            return response.ReasonPhrase ?? AIConstants.AIUnknownErrorMessage;
+            return Task.FromResult(response.ReasonPhrase ?? AIConstants.AIUnknownErrorMessage);
         }
 
         public static string ToFilterString(this Dictionary<string, object> parameters, IEnumerable<string>? exclude = null)

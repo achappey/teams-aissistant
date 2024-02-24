@@ -61,14 +61,14 @@ namespace TeamsAIssistant.Extensions
                     {
                         tools[Tool.CODE_INTERPRETER_TYPE] = Tool.CODE_INTERPRETER_TYPE.GetToolFromType();
 
-                        tools.Remove("retrieval");
+                        tools.Remove(OpenAI.Tool.Retrieval.Type);
                         turnState.Tools = tools;
                     }
                     break;
                 case "retrieval":
-                    if (!tools.ContainsKey(Tool.CODE_INTERPRETER_TYPE) && !tools.ContainsKey("retrieval"))
+                    if (!tools.ContainsKey(Tool.CODE_INTERPRETER_TYPE) && !tools.ContainsKey(OpenAI.Tool.Retrieval.Type))
                     {
-                        tools["retrieval"] = "retrieval".GetToolFromType();
+                        tools[OpenAI.Tool.Retrieval.Type] = OpenAI.Tool.Retrieval.Type.GetToolFromType();
                         turnState.Tools = tools;
                     }
                     break;

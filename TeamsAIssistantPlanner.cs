@@ -52,7 +52,7 @@ namespace TeamsAIssistant.Planner
                     actionPlanner.Options.Tokenizer,
                     turnState.ContextLength ?? Constants.AIConstants.DefaultContextTokenLength);
 
-                var contextString = $"\n\nContext:\n{context}";
+                var contextString = $"Context:\n{context}";
 
                 if (turnState.AdditionalInstructionsContext == true)
                 {
@@ -62,7 +62,7 @@ namespace TeamsAIssistant.Planner
                 {
                     turnState.Temp.Input = $"{contextString}\n\nUser: {turnState.Temp.Input}";
                 }
-                
+
                 return citations;
             }
 

@@ -1,4 +1,4 @@
-name: .NET 7 Build on Windows
+name: .NET 8 Build on Windows
 
 on: [push, pull_request]
 
@@ -22,7 +22,7 @@ jobs:
         path: 'teams-aissistant'
 
     - name: Build Teams-AI Project
-      run: dotnet build dotnet/packages/Microsoft.TeamsAI/ --configuration Release
+      run: dotnet build dotnet/packages/Microsoft.TeamsAI/Microsoft.TeamsAI/Microsoft.Teams.AI.csproj --configuration Release
       working-directory: teams-ai
  
     - name: Build Teams-Assistant Project

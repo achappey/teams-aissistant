@@ -190,7 +190,7 @@ namespace TeamsAIssistant.Extensions
 
         public static IEnumerable<Tool> GetNonFunctionTools(this IEnumerable<Tool> tools)
         {
-            return tools.Where(t => t.Type != Tool.FUNCTION_CALLING_TYPE);
+            return tools.Where(t => !IsFunctionTool(t));
         }
 
         public static string ToToolIdentifier(this Tool tool)

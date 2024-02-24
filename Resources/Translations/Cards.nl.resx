@@ -181,13 +181,13 @@
     <value>Voeg aanvullende instructies toe aan het einde van de instructies voor het gesprek. Dit is handig om het gedrag tijdens het gesprek te wijzigen zonder andere instructies te negeren.</value>
   </data> 
   <data name="EditText" xml:space="preserve">
-    <value>Wijzigen</value>
+    <value>Wijzig</value>
   </data>  
   <data name="CloneText" xml:space="preserve">
     <value>Kloon</value>
   </data>  
   <data name="DeleteText" xml:space="preserve">
-    <value>Verwijderen</value>
+    <value>Verwijder</value>
   </data>  
    <data name="NoPluginsText" xml:space="preserve">
     <value>Geen plugins</value>

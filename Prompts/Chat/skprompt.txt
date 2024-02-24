@@ -4,6 +4,7 @@ Please create a semantic search query, we would like it to be more intelligent t
 
 Please analyze the history in combination with the last user message.
 Create a comprehensive search query that contains all information for an AI get the best results from the vector database search.
+It's a vector based searched query, so when subjects are NOT needed, mentioned them too.
 
 [RULES]
 DON'T WASTE WORDS.
