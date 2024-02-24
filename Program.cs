@@ -79,8 +79,8 @@ builder.Services.AddScoped<FileHandlers>();
 builder.Services.AddScoped<KernelMemoryData>();
 
 builder.Services.AddSingleton<OpenAIModel>(sp => new(
-       new OpenAIModelOptions(config.OpenAI.ApiKey, OpenAI.ObjectModels.Models.Gpt_3_5_Turbo_1106),
-       sp.GetService<ILoggerFactory>()
+    new OpenAIModelOptions(config.OpenAI.ApiKey, OpenAI.ObjectModels.Models.Gpt_4_0125_preview),
+    sp.GetService<ILoggerFactory>()
 ));
 
 if (!string.IsNullOrEmpty(config.AAD_APP_CLIENT_ID))

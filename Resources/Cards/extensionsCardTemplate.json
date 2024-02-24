@@ -235,7 +235,7 @@
               },
               {
                 "title": "${longContextText}",
-                "value": "4096"
+                "value": "3072"
               }
             ],
             "value": "${contextLength}",

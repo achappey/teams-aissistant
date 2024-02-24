@@ -100,5 +100,11 @@ namespace TeamsAIssistant.State
             get => User?.Get<double?>("kernelmemory_min_relevance") ?? AIConstants.DefaultMinRelevance;
             set => User?.Set("kernelmemory_min_relevance", value);
         }
+
+        public string? ThreadMessageHistory
+        {
+            get => Temp?.Get<string?>("thread_message_history");
+            set => Temp?.Set("thread_message_history", value);
+        }
     }
 }

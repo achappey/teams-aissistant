@@ -1,16 +1,16 @@
-Above you see the message history and the latest message of a user to an AI-bot.
-We need to perform a semantic search on a large vector database to extract key information for the user.
-Please create a semantic search query, we would like it to be more intelligent than only the last prompt.
+Chat history:
+###
+{{ $thread_message_history }}
+###
 
-Please analyze the history in combination with the last user message.
-Create a comprehensive search query that contains all information for an AI get the best results from the vector database search.
-It's a vector based searched query, so when subjects are NOT needed, mentioned them too.
+Given the above context, what is the best vector retrieval search prompt to use to get the most relevant embedding chunks for this query:
+###
+{{ $input }}
+###
 
 [RULES]
-DON'T WASTE WORDS.
-USE SHORT, CLEAR, COMPLETE SENTENCES.
-DO NOT USE BULLET POINTS OR DASHES.
-MAXIMIZE DETAIL, MEANING.
-FOCUS ON THE CONTENT.
-ONLY ANSWER WITH THE SEARCH QUERY, DONT INCLUDE OTHER WORDS/SENTENCES.
+Only answer with the relevant search prompt
+Include subjects the user doesn't want when applicable
+Be clear and concise
+It's for a vector retrieval search prompt, you know how it works. Don't let me down
 [END RULES]

@@ -3,7 +3,6 @@ using Microsoft.KernelMemory;
 using Microsoft.Teams.AI.AI;
 using Microsoft.Teams.AI.AI.Planners;
 using Microsoft.Teams.AI.AI.Planners.Experimental;
-using Microsoft.Teams.AI.AI.Prompts.Sections;
 using TeamsAIssistant.DataSources;
 using TeamsAIssistant.Extensions;
 using TeamsAIssistant.Services;
@@ -80,11 +79,7 @@ namespace TeamsAIssistant.Planner
                 var promptTemplate = actionPlannerOptions.Prompts.GetPrompt("Chat");
 
                 string messageHistory = string.Join("\n\n", messages?.Select(t => t.ToEmbeddingsSearch())!);
-                promptTemplate.Prompt.Sections.Insert(0, new TextSection(text: $"Previous Messages:\n###\n{messageHistory}\n###",
-                    role: Microsoft.Teams.AI.AI.Models.ChatRole.User));
-
-                promptTemplate.Prompt.Sections.Insert(1, new TextSection(text: $"Current Message:\n###\n{turnState.Temp.Input}\n###",
-                    role: Microsoft.Teams.AI.AI.Models.ChatRole.User));
+                turnState.ThreadMessageHistory = messageHistory;
 
                 var result = await actionPlanner.CompletePromptAsync(turnContext, turnState, promptTemplate, null, cancellationToken);
                 query = result.Message?.Content ?? query;

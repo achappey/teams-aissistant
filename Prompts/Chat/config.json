@@ -5,13 +5,13 @@
     "completion": {
       "model": "gpt-4-0125-preview",
       "completion_type": "chat",
-      "include_history": true,
+      "include_history": false,
       "include_input": false,
       "max_input_tokens": 4096,
-      "temperature": 0.4,
-      "top_p": 0.8,
-      "presence_penalty": 0.2,
-      "frequency_penalty": 0.2,
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "presence_penalty": 0.0,
+      "frequency_penalty": 0.0,
       "stop_sequences": []
     },
     "augmentation": {
