@@ -111,7 +111,7 @@ namespace TeamsAIssistant.Services
 
     public async Task<IEnumerable<Assistant>> GetAssistantsAsync()
     {
-      var response = await _openAIDotNet.AssistantsEndpoint.ListAssistantsAsync();
+      var response = await _openAIDotNet.AssistantsEndpoint.ListAssistantsAsync(new ListQuery(limit: 100));
       return response.Items.Select(Extensions.AssistantExtensions.ToAssistant);
     }
 

@@ -93,8 +93,9 @@ namespace TeamsAIssistant.Services
            t.IsOwner(currentUserId) ||
            t.Metadata.ContainsKey(AssistantMetadata.Visibility) &&
             (t.Metadata[AssistantMetadata.Visibility].ToString() == Enum.GetName(Visibility.Organization) ||
-              t.IsOwner(currentUserId)) ||
-             (t.Metadata.ContainsKey(AssistantMetadata.Team)
+              t.IsOwner(currentUserId))
+              ||
+            (t.HasTeam()
               && t.Metadata[AssistantMetadata.Visibility].ToString() == Enum.GetName(Visibility.Team) &&
               t.IsTeamMember(teamIds))
            ).OrderBy(t => t.Name);

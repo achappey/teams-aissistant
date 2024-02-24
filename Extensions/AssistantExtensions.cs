@@ -116,6 +116,7 @@ namespace TeamsAIssistant.Extensions
         {
             return teamIds.Length > 0 && assistant.Metadata != null && assistant.Metadata.ContainsKey(AssistantMetadata.Team)
                 && assistant.Metadata[AssistantMetadata.Team] != null
+                
                 && teamIds.Any(e => e == assistant.Metadata[AssistantMetadata.Team].ToString());
         }
 
