@@ -9,7 +9,9 @@ using TeamsAIssistant.Attributes;
 namespace TeamsAIssistant.Handlers.Plugins.Simplicate
 {
     public class SimplicateProjectSettingsPlugin(SimplicateClientServiceProvider simplicateClientServiceProvider,
-        ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) : SimplicateBasePlugin(simplicateClientServiceProvider, proactiveMessageService, driveRepository, "Projects Settings")
+        GraphClientServiceProvider graphClientServiceProvider,
+        ProactiveMessageService proactiveMessageService, DriveRepository driveRepository)
+        : SimplicateBasePlugin(simplicateClientServiceProvider, graphClientServiceProvider, proactiveMessageService, driveRepository, "Projects Settings")
     {
 
         [Action("Simplicate.SearchProjectPurchaseTypes")]

@@ -116,13 +116,8 @@ namespace TeamsAIssistant.Extensions
         {
             return teamIds.Length > 0 && assistant.Metadata != null && assistant.Metadata.ContainsKey(AssistantMetadata.Team)
                 && assistant.Metadata[AssistantMetadata.Team] != null
-                
-                && teamIds.Any(e => e == assistant.Metadata[AssistantMetadata.Team].ToString());
-        }
 
-        public static bool IsOwner(this Assistant assistant, ChannelAccount channelAccount)
-        {
-            return assistant.IsOwner(channelAccount.AadObjectId);
+                && teamIds.Any(e => e == assistant.Metadata[AssistantMetadata.Team].ToString());
         }
 
         public static bool HasOwners(this Assistant assistant)

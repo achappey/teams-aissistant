@@ -9,8 +9,9 @@ using TeamsAIssistant.Attributes;
 namespace TeamsAIssistant.Handlers.Plugins.Simplicate
 {
     public class SimplicateCRMPlugin(SimplicateClientServiceProvider simplicateClientServiceProvider,
+    GraphClientServiceProvider graphClientServiceProvider,
             ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) 
-            : SimplicateBasePlugin(simplicateClientServiceProvider, proactiveMessageService, driveRepository, "CRM")
+            : SimplicateBasePlugin(simplicateClientServiceProvider, graphClientServiceProvider, proactiveMessageService, driveRepository, "CRM")
     {
 
         [Action("Simplicate.SearchContactPersons")]

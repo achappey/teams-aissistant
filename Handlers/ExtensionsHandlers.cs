@@ -16,19 +16,22 @@ namespace TeamsAIssistant.Handlers
     {
         private readonly AssistantService _assistantService;
         private readonly PluginService _pluginService;
+        private readonly GraphClientServiceProvider _graphClientServiceProvider;
         private readonly ProactiveMessageService _proactiveMessageService;
         public readonly ActionSubmitHandler<TeamsAIssistantState> UpdatePluginsHandler;
         public readonly ActionSubmitHandler<TeamsAIssistantState> UpdateKernelMemoryHandler;
         public ActionSubmitHandler<TeamsAIssistantState> ShowExtensionsHandler;
         public readonly RouteHandler<TeamsAIssistantState> MenuHandler;
-        public readonly UserService? _userService;
+        public readonly UserService _userService;
 
         public ExtensionsHandlers(AssistantService assistantService,
             ProactiveMessageService proactiveMessageService,
-            PluginService pluginService, UserService? userService = null)
+            GraphClientServiceProvider graphClientServiceProvider,
+            PluginService pluginService, UserService userService)
         {
             _assistantService = assistantService;
             _userService = userService;
+            _graphClientServiceProvider = graphClientServiceProvider;
             _pluginService = pluginService;
             _proactiveMessageService = proactiveMessageService;
 
@@ -132,26 +135,20 @@ namespace TeamsAIssistant.Handlers
             CancellationToken cancellationToken,
             bool newCard = false)
         {
-
             var assistantTask = _assistantService.GetAssistantAsync(turnState.AssistantId);
 
             Task<IEnumerable<Site>> currentSitesTask = Task.FromResult<IEnumerable<Site>>([]);
             Task<IEnumerable<Team>> currentTeamsTask = Task.FromResult<IEnumerable<Team>>([]);
-            Task<IEnumerable<Team>> joinedTeamsTask = Task.FromResult<IEnumerable<Team>>([]);
-            Task<IEnumerable<Site>> followedSitesTask = Task.FromResult<IEnumerable<Site>>([]);
+            Task<IEnumerable<Team>> joinedTeamsTask = _userService.GetJoinedTeams(_graphClientServiceProvider.AadObjectId!).ContinueWith(task => task.Result.Take(200));
+            Task<IEnumerable<Site>> followedSitesTask = _userService.GetFollowedSites(_graphClientServiceProvider.AadObjectId!);
 
-            if (_userService != null)
+            if (turnState.SiteIndexes.Count > 0)
             {
-                if (turnState.SiteIndexes.Count > 0)
-                {
-                    currentSitesTask = _userService.GetSites(turnState.SiteIndexes);
-                }
-                if (turnState.TeamIndexes.Count > 0)
-                {
-                    currentTeamsTask = _userService.GetTeams(turnState.TeamIndexes);
-                }
-                joinedTeamsTask = _userService.GetJoinedTeams(turnContext.Activity.From.AadObjectId).ContinueWith(task => task.Result.Take(200));
-                followedSitesTask = _userService.GetFollowedSites(turnContext.Activity.From.AadObjectId);
+                currentSitesTask = _userService.GetSites(turnState.SiteIndexes);
+            }
+            if (turnState.TeamIndexes.Count > 0)
+            {
+                currentTeamsTask = _userService.GetTeams(turnState.TeamIndexes);
             }
 
             await Task.WhenAll(assistantTask, currentSitesTask, currentTeamsTask, joinedTeamsTask, followedSitesTask);

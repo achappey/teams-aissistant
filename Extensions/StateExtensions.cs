@@ -123,7 +123,7 @@ namespace TeamsAIssistant.Extensions
 
         }
 
-        public static string? GetAdditionalInstructions(this ITurnContext turnContext, TeamsAIssistantState turnState)
+        public static string? GetAdditionalInstructions(this ITurnContext turnContext, TeamsAIssistantState turnState, string userId)
         {
             var stringBuilder = new StringBuilder();
 
@@ -135,7 +135,7 @@ namespace TeamsAIssistant.Extensions
 
             if (turnState.PrependUsername == true && !string.IsNullOrEmpty(turnContext.Activity.From.Name))
             {
-                stringBuilder.AppendLine($"User {turnContext.Activity.From.Name} AadObjectId {turnContext.Activity.From.AadObjectId}");
+                stringBuilder.AppendLine($"User {turnContext.Activity.From.Name} AadObjectId {userId}");
             }
 
             if (!string.IsNullOrEmpty(turnState.AdditionalInstructions))

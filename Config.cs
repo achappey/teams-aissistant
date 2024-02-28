@@ -5,6 +5,7 @@
         public string? BOT_ID { get; set; }
         public string? BOT_PASSWORD { get; set; }
         public string? BOT_DOMAIN { get; set; }
+        public string? CONNECTION_NAME { get; set; }
         public string? AAD_APP_CLIENT_ID { get; set; }
         public string? AAD_APP_CLIENT_SECRET { get; set; }
         public string? AAD_APP_TENANT_ID { get; set; }
@@ -18,7 +19,12 @@
         public string? BAGApiKey { get; set; }
         public string? AzureMapsSubscriptionKey { get; set; }        
         public string? IndexQueue { get; set; }        
-        public string? SearchEndpoint { get; set; }        
+        public string? SearchEndpoint { get; set; }
+        public string? TypeFilters { get; set; }
+        public string? DriveIndexes { get; set; }
+        public string? SiteIndexes { get; set; }
+        public double? MinRelevance { get; set; }
+                
     }
 
     public class Mailchimp

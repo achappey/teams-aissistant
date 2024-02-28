@@ -9,7 +9,9 @@ using TeamsAIssistant.Attributes;
 namespace TeamsAIssistant.Handlers.Plugins.Simplicate
 {
     public class SimplicateHRMSettingsPlugin(SimplicateClientServiceProvider simplicateClientServiceProvider,
-        ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) : SimplicateBasePlugin(simplicateClientServiceProvider, proactiveMessageService, driveRepository, "HRM Settings")
+          GraphClientServiceProvider graphClientServiceProvider,
+        ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) 
+        : SimplicateBasePlugin(simplicateClientServiceProvider, graphClientServiceProvider, proactiveMessageService, driveRepository, "HRM Settings")
     {
 
         [Action("Simplicate.SearchHRMAbsenceTypes")]

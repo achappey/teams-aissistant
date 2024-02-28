@@ -9,7 +9,9 @@ using TeamsAIssistant.Attributes;
 namespace TeamsAIssistant.Handlers.Plugins.Simplicate
 {
     public class SimplicateInvoicePlugin(SimplicateClientServiceProvider simplicateClientServiceProvider,
-            ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) : SimplicateBasePlugin(simplicateClientServiceProvider, proactiveMessageService, driveRepository, "Invoices")
+    GraphClientServiceProvider graphClientServiceProvider,
+            ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) 
+            : SimplicateBasePlugin(simplicateClientServiceProvider, graphClientServiceProvider, proactiveMessageService, driveRepository, "Invoices")
     {
 
         [Action("Simplicate.SearchInvoices")]

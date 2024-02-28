@@ -11,15 +11,17 @@ namespace TeamsAIssistant.Handlers
     {
         private readonly AssistantService _assistantService;
         private readonly FileService _fileService;
+        private readonly GraphClientServiceProvider _graphClientServiceProvider;
         private readonly ProactiveMessageService _proactiveMessageService;
         public readonly RouteHandler<TeamsAIssistantState> SourcesMessageHandler;
         public readonly ActionSubmitHandler<TeamsAIssistantState> ShowFilesHandler;
 
         public FileHandlers(AssistantService assistantService, FileService fileService,
-            ProactiveMessageService proactiveMessageService)
+            ProactiveMessageService proactiveMessageService, GraphClientServiceProvider graphClientServiceProvider)
         {
             _assistantService = assistantService;
             _fileService = fileService;
+            _graphClientServiceProvider = graphClientServiceProvider;
             _proactiveMessageService = proactiveMessageService;
 
             SourcesMessageHandler = HandleSourcesMessageAsync;
@@ -53,7 +55,7 @@ namespace TeamsAIssistant.Handlers
                 AssistantName = assistant.Name,
                 AssistantFiles = assistantFiles,
                 ConversationFiles = conversationFiles,
-                IsAssistantOwner = assistant.IsOwner(turnContext.Activity.From),
+                IsAssistantOwner = assistant.IsOwner(_graphClientServiceProvider.AadObjectId!),
                 ShowConversationFiles = turnState.IsAuthenticated()
             };
 

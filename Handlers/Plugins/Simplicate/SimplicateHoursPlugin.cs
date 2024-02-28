@@ -9,8 +9,9 @@ using TeamsAIssistant.Attributes;
 namespace TeamsAIssistant.Handlers.Plugins.Simplicate
 {
     public class SimplicateHoursPlugin(SimplicateClientServiceProvider simplicateClientServiceProvider,
+      GraphClientServiceProvider graphClientServiceProvider,
         ProactiveMessageService proactiveMessageService, DriveRepository driveRepository)
-        : SimplicateBasePlugin(simplicateClientServiceProvider, proactiveMessageService, driveRepository, "Hours")
+        : SimplicateBasePlugin(simplicateClientServiceProvider, graphClientServiceProvider, proactiveMessageService, driveRepository, "Hours")
     {
 
         [Action("Simplicate.SearchHours")]

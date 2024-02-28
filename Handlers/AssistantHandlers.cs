@@ -12,15 +12,13 @@ using TeamsAIssistant.State;
 
 namespace TeamsAIssistant.Handlers
 {
-    /// <summary>
-    /// Defines the activity handlers.
-    /// </summary>
     public class AssistantHandlers
     {
         private readonly AssistantService _assistantService;
         private readonly PluginService _pluginService;
         private readonly UserService? _userService;
         private readonly IStorage _storage;
+        private readonly GraphClientServiceProvider _graphClientServiceProvider;
         private readonly ProactiveMessageService _proactiveMessageService;
         public RouteHandler<TeamsAIssistantState> AssistantMessageHandler;
         public ActionSubmitHandler<TeamsAIssistantState> UpdateAssistantHandler;
@@ -29,8 +27,10 @@ namespace TeamsAIssistant.Handlers
         public ActionSubmitHandler<TeamsAIssistantState> CloneAssistantHandler;
 
         public AssistantHandlers(AssistantService assistantService, IStorage storage,
-                            ProactiveMessageService proactiveMessageService, PluginService pluginService)
+                            ProactiveMessageService proactiveMessageService, PluginService pluginService,
+                            GraphClientServiceProvider graphClientServiceProvider)
         {
+            _graphClientServiceProvider = graphClientServiceProvider;
             _assistantService = assistantService;
             _proactiveMessageService = proactiveMessageService;
             _storage = storage;
@@ -44,8 +44,10 @@ namespace TeamsAIssistant.Handlers
         }
 
         public AssistantHandlers(AssistantService assistantService, IStorage storage, UserService userService,
-            ProactiveMessageService proactiveMessageService, PluginService pluginService)
+            ProactiveMessageService proactiveMessageService, PluginService pluginService,
+            GraphClientServiceProvider graphClientServiceProvider)
         {
+            _graphClientServiceProvider = graphClientServiceProvider;
             _assistantService = assistantService;
             _proactiveMessageService = proactiveMessageService;
             _storage = storage;
@@ -68,7 +70,7 @@ namespace TeamsAIssistant.Handlers
             {
                 var assistant = await _assistantService.GetAssistantAsync(newAssistant);
 
-                if (assistant.IsOwner(turnContext.Activity.From) && !_assistantService.IsDefaultAssistant(newAssistant))
+                if (assistant.IsOwner(_graphClientServiceProvider.AadObjectId!) && !_assistantService.IsDefaultAssistant(newAssistant))
                 {
                     var result = await _assistantService.DeleteAssistantAsync(newAssistant);
 
@@ -102,7 +104,7 @@ namespace TeamsAIssistant.Handlers
 
             if (newAssistant != null)
             {
-                var assistant = await _assistantService.CloneAssistantAsync(turnContext.Activity.From.AadObjectId, newAssistant);
+                var assistant = await _assistantService.CloneAssistantAsync(_graphClientServiceProvider.AadObjectId!, newAssistant);
                 turnState.AssistantId = assistant.Id;
                 turnState.Model = assistant.Model;
                 await turnState.SaveStateAsync(turnContext, _storage);
@@ -208,13 +210,13 @@ namespace TeamsAIssistant.Handlers
                 }
             }
 
-            if (turnState.IsAuthenticated() && assistant.IsOwner(turnContext.Activity.From.AadObjectId))
+            if (turnState.IsAuthenticated() && assistant.IsOwner(_graphClientServiceProvider.AadObjectId!))
             {
-                teams = await _userService?.GetJoinedTeams(turnContext.Activity.From.AadObjectId)!;
+                teams = await _userService?.GetJoinedTeams(_graphClientServiceProvider.AadObjectId!)!;
                 teams = teams.Take(100);
             }
 
-            var canDelete = assistant.IsOwner(turnContext.Activity.From)
+            var canDelete = assistant.IsOwner(_graphClientServiceProvider.AadObjectId!)
                 && !string.IsNullOrEmpty(turnState.AssistantId)
                 && !_assistantService.IsDefaultAssistant(turnState.AssistantId);
 
@@ -226,7 +228,7 @@ namespace TeamsAIssistant.Handlers
                 CanDelete = canDelete,
                 TeamName = teamName,
                 OwnerNames = owners != null && owners.Any() ? string.Join(", ", owners) : null,
-                IsOwner = assistant.IsOwner(turnContext.Activity.From),
+                IsOwner = assistant.IsOwner(_graphClientServiceProvider.AadObjectId!),
                 TeamChoices = teams?.Select(t => new AdaptiveChoice() { Title = t.DisplayName, Value = t.Id }) ?? [],
                 PluginChoices = allPlugins.Select(CardExtensions.ToAdaptiveChoice),
                 IsAuthenticated = turnState.IsAuthenticated(),

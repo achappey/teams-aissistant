@@ -1,4 +1,7 @@
-﻿using Microsoft.Bot.Builder;
+﻿using OpenAI;
+using OpenAI.Managers;
+using System.Reflection;
+using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Connector.Authentication;
 using Microsoft.Teams.AI;
@@ -9,9 +12,9 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Bot.Schema;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
-using System.Reflection;
-using OpenAI;
-using OpenAI.Managers;
+using Microsoft.Teams.AI.AI.Models;
+using Microsoft.Teams.AI.AI.Prompts;
+using Microsoft.KernelMemory.DataFormats.WebPages;
 using TeamsAIssistant.Handlers;
 using TeamsAIssistant.Config;
 using TeamsAIssistant.Services;
@@ -21,13 +24,10 @@ using TeamsAIssistant.Repositories;
 using TeamsAIssistant.State;
 using TeamsAIssistant.Extensions;
 using TeamsAIssistant.Handlers.Plugins;
-using MailChimp.Net;
-using Newtonsoft.Json;
-using Microsoft.Teams.AI.AI.Models;
-using Microsoft.Teams.AI.AI.Prompts;
 using TeamsAIssistant.Planner;
 using TeamsAIssistant.DataSources;
-using Microsoft.KernelMemory.DataFormats.WebPages;
+using MailChimp.Net;
+using Newtonsoft.Json;
 
 ////ngrok http 5130 --host-header="localhost:5130"
 var builder = WebApplication.CreateBuilder(args);
@@ -83,21 +83,17 @@ builder.Services.AddSingleton<OpenAIModel>(sp => new(
     sp.GetService<ILoggerFactory>()
 ));
 
-if (!string.IsNullOrEmpty(config.AAD_APP_CLIENT_ID))
+builder.Services.AddScoped<GraphClientServiceProvider>();
+builder.Services.AddScoped<SimplicateClientServiceProvider>();
+builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<UserService>();
+
+var allTypes = Assembly.GetExecutingAssembly().GetTypes();
+var pluginTypes = allTypes.Where(t => typeof(PluginBase).IsAssignableFrom(t) && t.IsClass && !t.IsAbstract);
+
+foreach (var type in pluginTypes)
 {
-    builder.Services.AddScoped<GraphClientServiceProvider>();
-    builder.Services.AddScoped<SimplicateClientServiceProvider>();
-    builder.Services.AddScoped<UserRepository>();
-    builder.Services.AddScoped<UserService>();
-
-
-    var allTypes = Assembly.GetExecutingAssembly().GetTypes();
-    var pluginTypes = allTypes.Where(t => typeof(PluginBase).IsAssignableFrom(t) && t.IsClass && !t.IsAbstract);
-
-    foreach (var type in pluginTypes)
-    {
-        builder.Services.AddScoped(type);
-    }
+    builder.Services.AddScoped(type);
 }
 
 builder.Services.AddSingleton(sp => new MailChimpManager(new MailChimpOptions()
@@ -130,39 +126,35 @@ builder.Services.AddSingleton(_ => new AssistantsPlannerOptions(config.OpenAI.Ap
 });
 
 
-if (!string.IsNullOrEmpty(config.AAD_APP_CLIENT_ID))
+builder.Services.AddSingleton<KeyVaultClientProvider>();
+builder.Services.AddSingleton<KeyVaultRepository>();
+builder.Services.AddScoped<DriveRepository>();
+builder.Services.AddScoped<DownloadService>();
+builder.Services.AddScoped<AttachmentHandlers>();
+builder.Services.AddScoped<ExtensionsHandlers>();
+builder.Services.AddScoped<ActionHandlers>();
+builder.Services.AddScoped<ConversationFilesService>();
+
+builder.Services.AddSingleton(sp =>
 {
-    builder.Services.AddSingleton<KeyVaultClientProvider>();
-    builder.Services.AddSingleton<KeyVaultRepository>();
-    builder.Services.AddScoped<DriveRepository>();
-    builder.Services.AddScoped<DownloadService>();
-    builder.Services.AddScoped<AttachmentHandlers>();
-    builder.Services.AddScoped<ExtensionsHandlers>();
-    builder.Services.AddScoped<ActionHandlers>();
-    builder.Services.AddScoped<ConversationFilesService>();
+    IConfidentialClientApplication app = ConfidentialClientApplicationBuilder.Create(config.AAD_APP_CLIENT_ID)
+                                        .WithClientSecret(config.AAD_APP_CLIENT_SECRET)
+                                        .WithTenantId(config.AAD_APP_TENANT_ID)
+                                        .WithLegacyCacheCompatibility(false)
+                                        .Build();
+    app.AddInMemoryTokenCache();
+    return app;
+});
 
-    builder.Services.AddSingleton(sp =>
-    {
-        IConfidentialClientApplication app = ConfidentialClientApplicationBuilder.Create(config.AAD_APP_CLIENT_ID)
-                                            .WithClientSecret(config.AAD_APP_CLIENT_SECRET)
-                                            .WithTenantId(config.AAD_APP_TENANT_ID)
-                                            .WithLegacyCacheCompatibility(false)
-                                            .Build();
-        app.AddInMemoryTokenCache();
-        return app;
-    });
-
-    builder.Services.AddSingleton<KeyVaultClientProvider>();
-}
+builder.Services.AddSingleton<KeyVaultClientProvider>();
 
 // Create the Application.
 builder.Services.AddTransient<IBot>(sp =>
 {
-    IConfidentialClientApplication? msal = sp.GetService<IConfidentialClientApplication>();
-    AuthenticationOptions<TeamsAIssistantState> options = new();
+    var msal = sp.GetRequiredService<IConfidentialClientApplication>();
     var adapter = sp.GetRequiredService<TeamsAdapter>();
     ILoggerFactory loggerFactory = sp.GetRequiredService<ILoggerFactory>();
-    var graphClientServiceProvider = sp.GetService<GraphClientServiceProvider>();
+    var graphClientServiceProvider = sp.GetRequiredService<GraphClientServiceProvider>();
     var assistantService = sp.GetRequiredService<AssistantService>();
     var indexService = sp.GetService<IndexService>();
 
@@ -196,104 +188,101 @@ builder.Services.AddTransient<IBot>(sp =>
            .WithAIOptions(new AIOptions<TeamsAIssistantState>(planner))
            .WithLoggerFactory(loggerFactory);
 
-    // Conditionally add authentication
-    if (msal != null)
+
+    AuthenticationOptions<TeamsAIssistantState> options = new();
+    if (!string.IsNullOrEmpty(config.CONNECTION_NAME))
+    {
+        options.AddAuthentication(Auth.Graph, new OAuthSettings()
+        {
+            ConnectionName = config.CONNECTION_NAME,
+            Text = $"Login at {config.CONNECTION_NAME}",
+            EnableSso = true,
+            OAuthAppCredentials = new MicrosoftAppCredentials(config.AAD_APP_CLIENT_ID,
+                config.AAD_APP_CLIENT_SECRET, oAuthScope: config.AAD_APP_SCOPES!, channelAuthTenant: config.AAD_APP_TENANT_ID),
+            Title = "Click here"
+        });
+    }
+    else
     {
         string signInLink = $"https://{config.BOT_DOMAIN}/auth-start.html";
+
         options.AddAuthentication(Auth.Graph, new TeamsSsoSettings(config.AAD_APP_SCOPES!.Split(","), signInLink, msal));
-        appBuilder = appBuilder.WithAuthentication(adapter, options);
     }
+
+    appBuilder = appBuilder.WithAuthentication(adapter, options);
 
     // Complete the application building
     Application<TeamsAIssistantState> app = appBuilder.Build();
 
     // Register default AI actions
-    var actionHandlers = sp.GetService<ActionHandlers>();
-    if (actionHandlers != null)
-    {
-        app.AI.ImportActions(actionHandlers);
-    }
+    var actionHandlers = sp.GetRequiredService<ActionHandlers>();
+    app.AI.ImportActions(actionHandlers);
 
     // Register AI plugin actions
-    if (config.AAD_APP_CLIENT_ID != null)
+    var pluginTypes = Assembly.GetExecutingAssembly().GetTypes()
+    .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(PluginBase)))
+    .ToList();
+
+    foreach (var type in pluginTypes)
     {
-        var pluginTypes = Assembly.GetExecutingAssembly().GetTypes()
-        .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(PluginBase)))
-        .ToList();
-
-        foreach (var type in pluginTypes)
+        var plugin = (PluginBase?)sp.GetService(type);
+        if (plugin != null)
         {
-            var plugin = (PluginBase?)sp.GetService(type);
-            if (plugin != null)
+            app.AI.ImportActions(plugin);
+
+            var pluginItem = plugin.GetPlugin();
+
+            if (pluginItem.Submits != null)
             {
-                app.AI.ImportActions(plugin);
-
-                var pluginItem = plugin.GetPlugin();
-
-                if (pluginItem.Submits != null)
+                foreach (var (name, handler) in pluginItem.Submits)
                 {
-                    foreach (var (name, handler) in pluginItem.Submits)
+                    app.AdaptiveCards.OnActionSubmit(name, async (ITurnContext turnContext, TeamsAIssistantState turnState, object data, CancellationToken cancellationToken) =>
                     {
-                        app.AdaptiveCards.OnActionSubmit(name, async (ITurnContext turnContext, TeamsAIssistantState turnState, object data, CancellationToken cancellationToken) =>
-                        {
-                            await handler(turnContext, turnState, data, cancellationToken);
+                        await handler(turnContext, turnState, data, cancellationToken);
 
-                            await app.AI.RunAsync(turnContext, turnState);
-                        });
-                    }
+                        await app.AI.RunAsync(turnContext, turnState);
+                    });
                 }
             }
         }
     }
 
-    var attachmentHandlers = sp.GetService<AttachmentHandlers>();
+    var attachmentHandlers = sp.GetRequiredService<AttachmentHandlers>();
     var assistantHandlers = sp.GetRequiredService<AssistantHandlers>();
     var extensionsHandlers = sp.GetRequiredService<ExtensionsHandlers>();
     var fileHandlers = sp.GetRequiredService<FileHandlers>();
     var conversationHandlers = sp.GetRequiredService<ConversationHandlers>();
 
-    if (attachmentHandlers != null)
-    {
-        app.OnMessage("/export", attachmentHandlers.ExportMessagesHandler);
-    }
-
+    app.OnMessage("/export", attachmentHandlers.ExportMessagesHandler);
     app.OnMessage("/reset", conversationHandlers.HandleResetMessageHandler);
     app.OnMessage("/files", fileHandlers.SourcesMessageHandler);
     app.OnMessage("/assistant", assistantHandlers.AssistantMessageHandler);
     app.OnMessage("/extensions", extensionsHandlers.MenuHandler);
     app.OnMessage("/menu", conversationHandlers.MenuHandler);
+    //app.OnConversationUpdate(ConversationUpdateEvents.MembersAdded, conversationHandlers.MemberAddedHandler);
 
-    if (graphClientServiceProvider != null)
+    app.OnBeforeTurn(async (turnContext, turnState, cancellationToken) =>
     {
-        app.OnBeforeTurn(async (turnContext, turnState, cancellationToken) =>
+        return await Task.Run(() =>
         {
-            return await Task.Run(() =>
-            {
-                var token = turnState.GetGraphToken();
-                graphClientServiceProvider.SetToken(token);
+            conversationHandlers.EnsureDefaultSources(turnState, config);
 
-                return true;
-            });
+            var token = turnState.GetGraphToken();
+            graphClientServiceProvider.SetToken(token);
+
+            return true;
         });
-    }
+    });
 
-    if (attachmentHandlers != null)
-    {
-        app.AdaptiveCards.OnActionSubmit(SubmitActions.DeleteFileVerb, attachmentHandlers.DeleteFileHandler);
-        app.AdaptiveCards.OnActionSubmit(SubmitActions.DeleteAssistantFileVerb, attachmentHandlers.DeleteAssistantFileHandler);
-        app.AdaptiveCards.OnActionSubmit(SubmitActions.FileToAssistantVerb, attachmentHandlers.AttachFileHandler);
-        app.AdaptiveCards.OnActionSubmit(SubmitActions.AddToChatVerb, attachmentHandlers.AddToChatFileHandler);
-        app.AdaptiveCards.OnActionSubmit(SubmitActions.ExportVerb, attachmentHandlers.ExportButtonHandler);
-    }
-
-    if (!string.IsNullOrEmpty(config.AAD_APP_CLIENT_ID))
-    {
-        app.AdaptiveCards.OnActionSubmit(SubmitActions.CloneAssistantVerb, assistantHandlers.CloneAssistantHandler);
-        app.AdaptiveCards.OnActionSubmit(SubmitActions.DeleteAssistantVerb, assistantHandlers.DeleteAssistantHandler);
-        app.AdaptiveCards.OnActionSubmit(SubmitActions.UpdatePluginsVerb, extensionsHandlers.UpdatePluginsHandler);
-        app.AdaptiveCards.OnActionSubmit(SubmitActions.UpdateKernelMemoryVerb, extensionsHandlers.UpdateKernelMemoryHandler);
-    }
-
+    app.AdaptiveCards.OnActionSubmit(SubmitActions.DeleteFileVerb, attachmentHandlers.DeleteFileHandler);
+    app.AdaptiveCards.OnActionSubmit(SubmitActions.DeleteAssistantFileVerb, attachmentHandlers.DeleteAssistantFileHandler);
+    app.AdaptiveCards.OnActionSubmit(SubmitActions.FileToAssistantVerb, attachmentHandlers.AttachFileHandler);
+    app.AdaptiveCards.OnActionSubmit(SubmitActions.AddToChatVerb, attachmentHandlers.AddToChatFileHandler);
+    app.AdaptiveCards.OnActionSubmit(SubmitActions.ExportVerb, attachmentHandlers.ExportButtonHandler);
+    app.AdaptiveCards.OnActionSubmit(SubmitActions.CloneAssistantVerb, assistantHandlers.CloneAssistantHandler);
+    app.AdaptiveCards.OnActionSubmit(SubmitActions.DeleteAssistantVerb, assistantHandlers.DeleteAssistantHandler);
+    app.AdaptiveCards.OnActionSubmit(SubmitActions.UpdatePluginsVerb, extensionsHandlers.UpdatePluginsHandler);
+    app.AdaptiveCards.OnActionSubmit(SubmitActions.UpdateKernelMemoryVerb, extensionsHandlers.UpdateKernelMemoryHandler);
     app.AdaptiveCards.OnActionSubmit(SubmitActions.ClearConversationVerb, conversationHandlers.ResetConversationHandler);
     app.AdaptiveCards.OnActionSubmit(SubmitActions.FilesVerb, fileHandlers.ShowFilesHandler);
     app.AdaptiveCards.OnActionSubmit(SubmitActions.AssistantVerb, assistantHandlers.ShowAssistantHandler);
@@ -303,41 +292,40 @@ builder.Services.AddTransient<IBot>(sp =>
 
     app.OnActivity(ActivityTypes.Message, async (turnContext, turnState, cancellationToken) =>
     {
-        await HandleActivityAsync(turnContext, turnState, CancellationToken.None, app, sp, attachmentHandlers, conversationHandlers);
+        await HandleActivityAsync(turnContext, turnState, cancellationToken, graphClientServiceProvider.AadObjectId!, app, sp, attachmentHandlers, conversationHandlers);
     });
 
-    if (!string.IsNullOrEmpty(config.AAD_APP_CLIENT_ID))
+    app.Authentication.Get(Auth.Graph).OnUserSignInSuccess(async (context, state) =>
     {
-        app.Authentication.Get("graph").OnUserSignInSuccess(async (context, state) =>
-        {
-            await HandleActivityAsync(context, state, CancellationToken.None, app, sp, attachmentHandlers, conversationHandlers);
-        });
+        await HandleActivityAsync(context, state, CancellationToken.None, graphClientServiceProvider.AadObjectId!, app, sp, attachmentHandlers, conversationHandlers);
+    });
 
-        app.Authentication.Get("graph").OnUserSignInFailure(async (context, state, ex) =>
-        {
-            await context.SendActivityAsync("Failed to login");
-            await context.SendActivityAsync($"Error message: {ex.Message}");
-        });
-    }
+    app.Authentication.Get(Auth.Graph).OnUserSignInFailure(async (context, state, ex) =>
+    {
+        await context.SendActivityAsync("Failed to login");
+        await context.SendActivityAsync($"Error message: {ex.Message}");
+    });
 
     return app;
 });
 
-static async Task HandleActivityAsync(ITurnContext turnContext, TeamsAIssistantState turnState, CancellationToken cancellationToken,
-    Application<TeamsAIssistantState> app, IServiceProvider sp, AttachmentHandlers? attachmentHandlers, ConversationHandlers conversationHandlers)
+static async Task HandleActivityAsync(ITurnContext turnContext, TeamsAIssistantState turnState, CancellationToken cancellationToken, string userId,
+    Application<TeamsAIssistantState> app, IServiceProvider sp, AttachmentHandlers attachmentHandlers, ConversationHandlers conversationHandlers)
 {
     if (turnContext.Activity.Text != null && turnContext.Activity.Text.Trim().Equals($"/{turnContext.Activity.Recipient.Name}"))
     {
         await conversationHandlers.HandleMenuAsync(turnContext, turnState, cancellationToken);
     }
+    else if (turnContext.Activity.Text != null && turnContext.Activity.Text.IsAuthCode())
+    {
+        await conversationHandlers.HandleMenuAsync(turnContext, turnState, cancellationToken);
+    }
     else
     {
-        if (attachmentHandlers != null)
-        {
-            await attachmentHandlers.HandleAttachmentsAsync(turnContext, turnState, cancellationToken);
-        }
 
-        turnState.Temp.AdditionalInstructions += turnContext.GetAdditionalInstructions(turnState);
+        await attachmentHandlers.HandleAttachmentsAsync(turnContext, turnState, cancellationToken);
+
+        turnState.Temp.AdditionalInstructions += turnContext.GetAdditionalInstructions(turnState, userId);
 
         /* TeamsChannelData channelData = turnContext.Activity.GetChannelData<TeamsChannelData>();
 
@@ -350,7 +338,7 @@ static async Task HandleActivityAsync(ITurnContext turnContext, TeamsAIssistantS
          }*/
 
         await turnState.SaveStateAsync(turnContext, sp.GetService<IStorage>());
-        await app.AI.RunAsync(turnContext, turnState, cancellationToken: cancellationToken);
+        await app.AI.RunAsync(turnContext, turnState);
 
         if (turnState.ExportToolCalls.HasValue && turnState.ExportToolCalls.Value)
         {

@@ -14,6 +14,7 @@ using TeamsAIssistant.Handlers.Plugins.Simplicate.Extensions;
 namespace TeamsAIssistant.Handlers.Plugins.Simplicate
 {
     public abstract class SimplicateBasePlugin(SimplicateClientServiceProvider simplicateClientServiceProvider,
+        GraphClientServiceProvider graphClientServiceProvider,
         ProactiveMessageService proactiveMessageService, DriveRepository driveRepository, string name) : PluginBase(driveRepository, proactiveMessageService, name, "Simplicate", "REST API", "v2")
     {
 
@@ -38,7 +39,7 @@ namespace TeamsAIssistant.Handlers.Plugins.Simplicate
             var paramAttributes = GetActionParameters(actionName)?.ToList() ?? [];
 
             var cardId = await SendFunctionCard(turnContext, actionName, parameters);
-            var client = await _simplicateClientServiceProvider.GetAuthenticatedSimplicateClient(turnContext.Activity.From.AadObjectId);
+            var client = await _simplicateClientServiceProvider.GetAuthenticatedSimplicateClient(graphClientServiceProvider.AadObjectId!);
             string order = orderBy != null ? $"&sort={orderBy}" : string.Empty;
             using var result = await client.GetAsync($"{url}?{parameters.ToFilterString(paramAttributes)}{order}&metadata=count,limit,offset");
 
@@ -113,7 +114,7 @@ namespace TeamsAIssistant.Handlers.Plugins.Simplicate
 
         protected async Task<JToken?> GetSingleItem([ActionTurnContext] ITurnContext turnContext, string url)
         {
-            var client = await _simplicateClientServiceProvider.GetAuthenticatedSimplicateClient(turnContext.Activity.From.AadObjectId);
+            var client = await _simplicateClientServiceProvider.GetAuthenticatedSimplicateClient(graphClientServiceProvider.AadObjectId!);
             var result = await client.GetAsync($"{url}");
 
             if (!result.IsSuccessStatusCode)
@@ -141,7 +142,7 @@ namespace TeamsAIssistant.Handlers.Plugins.Simplicate
             var parametersDictionary = jObject?.ToObject<Dictionary<string, object>>()?.ExcludeVerb();
             parametersDictionary = parametersDictionary?.ToDictionary(a => a.Key, h => h.GetFormValue(actionParams));
             var nestedJson = parametersDictionary?.ConvertToNestedJson();
-            var graphClient = await _simplicateClientServiceProvider.GetAuthenticatedSimplicateClient(turnContext.Activity.From.AadObjectId);
+            var graphClient = await _simplicateClientServiceProvider.GetAuthenticatedSimplicateClient(graphClientServiceProvider.AadObjectId!);
             string? result;
 
             try

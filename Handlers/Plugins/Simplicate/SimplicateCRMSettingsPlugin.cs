@@ -9,8 +9,9 @@ using TeamsAIssistant.Attributes;
 namespace TeamsAIssistant.Handlers.Plugins.Simplicate
 {
     public class SimplicateCRMSettingsPlugin(SimplicateClientServiceProvider simplicateClientServiceProvider,
+    GraphClientServiceProvider graphClientServiceProvider,
         ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) 
-        : SimplicateBasePlugin(simplicateClientServiceProvider, proactiveMessageService, driveRepository, "CRM Settings")
+        : SimplicateBasePlugin(simplicateClientServiceProvider, graphClientServiceProvider, proactiveMessageService, driveRepository, "CRM Settings")
     {
 
         [Action("Simplicate.SearchCRMGenders")]

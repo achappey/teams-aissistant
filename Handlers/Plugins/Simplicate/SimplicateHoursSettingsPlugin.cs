@@ -9,7 +9,9 @@ using TeamsAIssistant.Attributes;
 namespace TeamsAIssistant.Handlers.Plugins.Simplicate
 {
     public class SimplicateHoursSettingsPlugin(SimplicateClientServiceProvider simplicateClientServiceProvider,
-        ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) : SimplicateBasePlugin(simplicateClientServiceProvider, proactiveMessageService, driveRepository, "Hours Settings")
+        GraphClientServiceProvider graphClientServiceProvider,
+        ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) 
+        : SimplicateBasePlugin(simplicateClientServiceProvider, graphClientServiceProvider, proactiveMessageService, driveRepository, "Hours Settings")
     {
 
         [Action("Simplicate.SearchHourTypes")]

@@ -5,6 +5,7 @@ using Microsoft.Teams.AI;
 using Microsoft.Teams.AI.AI.OpenAI.Models;
 using Newtonsoft.Json.Linq;
 using TeamsAIssistant.AdaptiveCards;
+using TeamsAIssistant.Config;
 using TeamsAIssistant.Constants;
 using TeamsAIssistant.Extensions;
 using TeamsAIssistant.Services;
@@ -15,25 +16,25 @@ namespace TeamsAIssistant.Handlers
     public class ConversationHandlers
     {
         private readonly AssistantService _assistantService;
-        private readonly PluginService _pluginService;
+        private readonly GraphClientServiceProvider _graphClientServiceProvider;
         private readonly FileService _fileService;
         private readonly ProactiveMessageService _proactiveMessageService;
         public readonly ActionSubmitHandler<TeamsAIssistantState> UpdateConversationHandler;
         public readonly ActionSubmitHandler<TeamsAIssistantState> ResetConversationHandler;
         public readonly RouteHandler<TeamsAIssistantState> HandleResetMessageHandler;
         public readonly RouteHandler<TeamsAIssistantState> MenuHandler;
-        public readonly UserService? _userService;
+        public readonly RouteHandler<TeamsAIssistantState> MemberAddedHandler;
 
         public ConversationHandlers(AssistantService assistantService,
-            ProactiveMessageService proactiveMessageService, FileService fileService,
-            PluginService pluginService, UserService? userService = null)
+            GraphClientServiceProvider graphClientServiceProvider,
+            ProactiveMessageService proactiveMessageService, FileService fileService)
         {
             _assistantService = assistantService;
             _fileService = fileService;
-            _userService = userService;
-            _pluginService = pluginService;
+            _graphClientServiceProvider = graphClientServiceProvider;
             _proactiveMessageService = proactiveMessageService;
 
+            MemberAddedHandler = HandleMemberAddedAsync;
             HandleResetMessageHandler = HandleResetMessageAsync;
             UpdateConversationHandler = HandleUpdateConversationAsync;
             MenuHandler = HandleMenuAsync;
@@ -47,12 +48,30 @@ namespace TeamsAIssistant.Handlers
             return ShowMenuAsync(turnContext, turnState, cancellationToken, true);
         }
 
+        private async Task HandleMemberAddedAsync(ITurnContext turnContext,
+           TeamsAIssistantState turnState,
+           CancellationToken cancellationToken)
+        {
+            var assistant = await _assistantService.GetAssistantAsync(turnState.AssistantId);
+            var siteIndexes = assistant.GetSiteIndexes();
+            if (siteIndexes != null)
+            {
+                turnState.SiteIndexes = siteIndexes.ToList();
+            }
+
+            var driveIndexes = assistant.GetDriveIndexes();
+            if (driveIndexes != null)
+            {
+                turnState.DriveIndexes = driveIndexes.ToList();
+            }
+        }
+
         private async Task ShowMenuAsync(ITurnContext turnContext,
             TeamsAIssistantState turnState,
             CancellationToken cancellationToken,
             bool newCard = false)
         {
-            var fetchAssistantsTask = FetchAssistants(turnContext, turnState);
+            var fetchAssistantsTask = FetchAssistants(turnState);
 
             Task<IEnumerable<Models.Message>> messagesTask = Task.FromResult<IEnumerable<Models.Message>>([]);
             Task<IEnumerable<(string model, int input, int output)>> threadUsageTask = Task.FromResult<IEnumerable<(string model, int input, int output)>>([]);
@@ -64,22 +83,19 @@ namespace TeamsAIssistant.Handlers
             }
 
             await Task.WhenAll(fetchAssistantsTask, messagesTask, threadUsageTask);
-            
+
             var (assistant, assistants) = await fetchAssistantsTask;
             var messages = await messagesTask;
             var threadUsageTotals = await threadUsageTask;
 
             var tools = turnState.Tools.Count != 0 ? turnState.Tools.Where(a => !a.Value.IsFunctionTool()).Select(t => t.Key)
                 : assistant.Tools.GetNonFunctionTools().Select(AssistantExtensions.ToToolIdentifier);
-                
+
             var visibleTools = tools.Where(r => r != Tool.FUNCTION_CALLING_TYPE);
 
-            var allPlugins = _pluginService.GetPlugins() ?? [];
             IEnumerable<string> assistantPlugins = assistant.GetPlugins().ToStringList() ?? [];
 
             double? usage = threadUsageTotals.Select(a => AIPricing.CalculateCost(a.model, a.input, a.output)).Sum();
-
-            var filterCount = turnState.YearFilters.Count + turnState.TypeFilters.Count;
             var sourceCount = turnState.SiteIndexes.Count + turnState.TeamIndexes.Count + turnState.SimplicateIndexes.Count;
 
             MenuCardData menuCard = new(new CultureInfo(turnContext.Activity.Locale))
@@ -93,7 +109,6 @@ namespace TeamsAIssistant.Handlers
                 SelectedSourcesCount = sourceCount > 0 ? sourceCount : null,
                 Usage = (usage ?? 0).ToString("C", CultureInfo.CreateSpecificCulture("en-US")),
                 ExportToolCalls = turnState.ExportToolCalls ?? false,
-                AllPlugins = allPlugins.Select(t => t.Name),
                 ConversationPlugins = turnState.Plugins,
                 FileCount = assistant.FileIds.Count + turnState.Files.Count,
                 PrependDateTime = turnState.PrependDateTime ?? false,
@@ -109,25 +124,12 @@ namespace TeamsAIssistant.Handlers
         }
 
         private async Task<(Assistant assistant, IEnumerable<Assistant>? assistants)> FetchAssistants(
-            ITurnContext turnContext,
             TeamsAIssistantState turnState)
         {
-            // Start de taak om de primaire assistent te halen
             var assistantTask = _assistantService.GetAssistantAsync(turnState.AssistantId);
-
-            // Voorbereiden van een taak voor het ophalen van assistenten, maar start deze alleen indien nodig
-            Task<IEnumerable<Assistant>>? assistantsTask = null;
-
-            if (turnContext.Activity.From.AadObjectId != null)
-            {
-                assistantsTask = _assistantService.GetAssistantsAsync(turnContext.Activity.From.AadObjectId);
-            }
-
-            // Wacht op de assistent taak om te voltooien omdat deze altijd nodig is
+            var assistantsTask = _assistantService.GetAssistantsAsync(_graphClientServiceProvider.AadObjectId!);
             var assistant = await assistantTask;
-
-            // Als de assistantsTask gestart is, wacht dan op het resultaat; anders, stel assistants in op null
-            var assistants = assistantsTask != null ? await assistantsTask : null;
+            var assistants = await assistantsTask;
 
             return (assistant, assistants);
         }
@@ -256,8 +258,34 @@ namespace TeamsAIssistant.Handlers
             var updatedTools = UpdateTools([], assistant.Tools, turnState.Tools);
             turnState.Tools = updatedTools;
 
-            // turnState.SaveStateAsync(turnContext, this._st)
             await ShowMenuAsync(turnContext, turnState, cancellationToken, newCard);
         }
+
+        public void EnsureDefaultSources(TeamsAIssistantState turnState, ConfigOptions options)
+        {
+            var siteIndexesToUpdate = options.SiteIndexes?.ToStringList();
+            if (siteIndexesToUpdate != null && siteIndexesToUpdate.Count != 0)
+            {
+                turnState.SiteIndexes = UpdateSiteIndexes([], siteIndexesToUpdate, turnState.SiteIndexes).ToList();
+            }
+
+            var driveIndexesToUpdate = options.DriveIndexes?.ToStringList();
+            if (driveIndexesToUpdate != null && driveIndexesToUpdate.Count != 0)
+            {
+                turnState.DriveIndexes = driveIndexesToUpdate;
+            }
+
+            var typeFiltersToUpdate = options.TypeFilters?.ToStringList();
+            if (typeFiltersToUpdate != null && typeFiltersToUpdate.Count != 0)
+            {
+                turnState.TypeFilters = typeFiltersToUpdate;
+            }
+
+            if (options.MinRelevance.HasValue && options.MinRelevance > 0)
+            {
+                turnState.MinRelevance = options.MinRelevance.Value;
+            }
+        }
+
     }
 }

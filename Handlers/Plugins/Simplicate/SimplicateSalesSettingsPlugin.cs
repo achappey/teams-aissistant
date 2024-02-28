@@ -8,8 +8,9 @@ using TeamsAIssistant.Repositories;
 namespace TeamsAIssistant.Handlers.Plugins.Simplicate
 {
     public class SimplicateSalesSettingsPlugin(SimplicateClientServiceProvider simplicateClientServiceProvider,
-        ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) 
-        : SimplicateBasePlugin(simplicateClientServiceProvider, proactiveMessageService, driveRepository, "Sales Settings")
+     GraphClientServiceProvider graphClientServiceProvider,
+        ProactiveMessageService proactiveMessageService, DriveRepository driveRepository)
+        : SimplicateBasePlugin(simplicateClientServiceProvider, graphClientServiceProvider, proactiveMessageService, driveRepository, "Sales Settings")
     {
 
         [Action("Simplicate.GetQuoteTemplates")]

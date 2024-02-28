@@ -164,8 +164,8 @@ namespace TeamsAIssistant.DataSources
             string connector = "";
             bool maxTokensReached = false;
 
-            var client = simplicateClientServiceProvider != null ?
-                 await simplicateClientServiceProvider.GetAuthenticatedSimplicateClient(context.Activity.From.AadObjectId) : null;
+            var client = simplicateClientServiceProvider != null && memory.SimplicateIndexes.Count != 0 ?
+                 await simplicateClientServiceProvider.GetAuthenticatedSimplicateClient(graphClientServiceProvider!.AadObjectId!) : null;
 
             foreach (Citation citation in results?.Results ?? [])
             {

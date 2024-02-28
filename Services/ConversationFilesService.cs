@@ -6,7 +6,8 @@ using TeamsAIssistant.Extensions;
 
 namespace TeamsAIssistant.Services
 {
-  public class ConversationFilesService(FileService fileService, ProactiveMessageService proactiveMessageService, DownloadService downloadService)
+  public class ConversationFilesService(FileService fileService, GraphClientServiceProvider graphClientServiceProvider,
+    ProactiveMessageService proactiveMessageService, DownloadService downloadService)
   {
 
     public async Task SaveFile(ITurnContext turnContext, Models.File file)
@@ -52,7 +53,7 @@ namespace TeamsAIssistant.Services
 
         try
         {
-          var result = await downloadService.DownloadAttachmentAsync(turnContext.Activity.From.AadObjectId, file);
+          var result = await downloadService.DownloadAttachmentAsync(graphClientServiceProvider.AadObjectId!, file);
           if (result == null || result.Content == null || result.Filename == null)
           {
             await SendCardUpdateAsync("Download error", connectionReference, uploadCardId, file.Filename ?? string.Empty, file.Url, turnContext.Activity.Locale);

@@ -9,7 +9,9 @@ using TeamsAIssistant.Attributes;
 namespace TeamsAIssistant.Handlers.Plugins.Simplicate
 {
     public class SimplicateSalesPlugin(SimplicateClientServiceProvider simplicateClientServiceProvider,
-        ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) : SimplicateBasePlugin(simplicateClientServiceProvider, proactiveMessageService, driveRepository, "Sales")
+    GraphClientServiceProvider graphClientServiceProvider,
+        ProactiveMessageService proactiveMessageService, DriveRepository driveRepository) 
+        : SimplicateBasePlugin(simplicateClientServiceProvider, graphClientServiceProvider, proactiveMessageService, driveRepository, "Sales")
     {
 
         [Action("Simplicate.SearchSales")]
@@ -63,27 +65,5 @@ namespace TeamsAIssistant.Handlers.Plugins.Simplicate
         {
             return SubmitNewActionAsync(turnContext, turnState, "Simplicate.AddNewQuote", data, "sales/quote", cancellationToken);
         }
-/*
-        [Action("AddNewSales")]
-        [Description("Adds a new sales in Simplicate")]
-        [Parameter(name: "subject", type: "string", required: true, description: "Subject of the sales")]
-        [Parameter(name: "start_date", type: "string", format: "date-time",
-            description: "Start date of the sales (format: yyyy-MM-dd HH:mm:ss)")]
-        [Parameter(name: "expected_closing_date", type: "string", format: "date-time",
-            description: "Expected closing date of the sales (format: yyyy-MM-dd HH:mm:ss)")]
-        [Parameter(name: "expected_revenue", type: "number", description: "Expected revenue of the sales")]
-        [Parameter(name: "chance_to_score", type: "number", minimum: 0, maximum: 100, description: "Chance to score")]
-        [Parameter(name: "note", type: "string", multiline: true, description: "Note for the sales")]
-        public Task<string> AddNewSales([ActionTurnContext] TurnContext turnContext, [ActionTurnState] TeamsAIssistantState turnState,
-           [ActionName] string actionName, [ActionParameters] Dictionary<string, object> parameters)
-        {
-            return SendConfirmationCard(turnContext, actionName, parameters);
-        }
-
-        [Submit]
-        public Task AddNewSalesSubmit(ITurnContext turnContext, TeamsAIssistantState turnState, object data, CancellationToken cancellationToken)
-        {
-            return SubmitNewActionAsync(turnContext, turnState, "AddNewSales", data, "sales/sales", cancellationToken);
-        }*/
     }
 }

@@ -1,4 +1,5 @@
 using System.Collections.Specialized;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text.RegularExpressions;
 using System.Web;
 using HtmlAgilityPack;
@@ -6,8 +7,40 @@ using TeamsAIssistant.Constants;
 
 namespace TeamsAIssistant.Extensions
 {
-    public static class StringExtensions
+    public static partial class StringExtensions
     {
+
+        public static bool IsAuthCode(this string input)
+        {
+            return MyRegex().IsMatch(input);
+        }
+
+        public static string? DecodeAccessToken(this string accessToken)
+        {
+            // Initialiseer de JwtSecurityTokenHandler
+            var handler = new JwtSecurityTokenHandler();
+
+            // Decodeer het token (zonder validatie, enkel voor uitlezing)
+            var jsonToken = handler.ReadToken(accessToken) as JwtSecurityToken;
+
+            if (jsonToken != null)
+            {
+                // Haal de 'sub' claim op als voorbeeld, die gewoonlijk de gebruikers-ID bevat
+                var userId = jsonToken.Claims.FirstOrDefault(claim => claim.Type == "oid")?.Value;
+                return userId;
+                // Console.WriteLine($"Gebruikers-ID: {userId}");
+
+                // Je kunt hier andere claims lezen op een vergelijkbare manier
+                // Bijvoorbeeld: jsonToken.Claims.FirstOrDefault(claim => claim.Type == "email")?.Value;
+            }
+            else
+            {
+                //  Console.WriteLine("Ongeldig token of token kon niet worden gedecodeerd.");
+            }
+
+            return null;
+        }
+
         public static string ToListString(this IEnumerable<string>? items)
         {
             return string.Join(",", items ?? []);
@@ -202,5 +235,7 @@ namespace TeamsAIssistant.Extensions
             return segments.Last().Replace("%20", " ");
         }
 
+        [GeneratedRegex(@"^\d{6}$")]
+        private static partial Regex MyRegex();
     }
 }

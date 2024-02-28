@@ -40,7 +40,7 @@ namespace TeamsAIssistant.State
             get => User?.Get<string?>("additional_instructions");
             set => User?.Set("additional_instructions", value);
         }
-        
+
         public List<string> SiteIndexes
         {
             get => Conversation?.Get<List<string>>("kernelmemory_site_indexes") ?? [];

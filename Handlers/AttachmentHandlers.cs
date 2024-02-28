@@ -41,7 +41,7 @@ namespace TeamsAIssistant.Handlers
             ExportButtonHandler = HandleExportMessageButtonAsync;
         }
 
-        private async Task HandleAddToChatAsync(ITurnContext turnContext, TeamsAIssistantState turnState, 
+        private async Task HandleAddToChatAsync(ITurnContext turnContext, TeamsAIssistantState turnState,
             object data, CancellationToken cancellationToken)
         {
             var jObject = JObject.FromObject(data);
@@ -131,7 +131,7 @@ namespace TeamsAIssistant.Handlers
             {
                 await _conversationFilesService.SaveFile(turnContext, new Models.File()
                 {
-                    Filename =  $"Messages-{DateTime.Now.Ticks}.csv",
+                    Filename = $"Messages-{DateTime.Now.Ticks}.csv",
                     Content = file
                 });
             }
@@ -146,7 +146,7 @@ namespace TeamsAIssistant.Handlers
         {
             var currentFiles = turnState.Files ?? [];
             var validAttachments = turnContext.Activity.Attachments?.ToFiles() ?? [];
-            var assistant = await _assistantService.GetAssistantAsync(turnState.AssistantId);
+            var assistant = validAttachments.Any() ? await _assistantService.GetAssistantAsync(turnState.AssistantId) : null;
 
             foreach (Models.File newAttachment in validAttachments)
             {
@@ -156,7 +156,7 @@ namespace TeamsAIssistant.Handlers
                 {
                     currentFiles.Add(newFile.Id);
                     turnState.Files = currentFiles;
-                    turnState.EnsureTool(newFile.Filename.GetToolTypeFromFile()!, assistant.Tools);
+                    turnState.EnsureTool(newFile.Filename.GetToolTypeFromFile()!, assistant!.Tools);
                 }
             }
         }
