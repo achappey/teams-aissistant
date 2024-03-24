@@ -5,8 +5,8 @@ namespace TeamsAIssistant
 {
     public class AdapterWithErrorHandler : TeamsAdapter
     {
-        public AdapterWithErrorHandler(IConfiguration configuration, ILogger<TeamsAdapter> logger)
-               : base(configuration, null, logger)
+        public AdapterWithErrorHandler(IConfiguration configuration, ILogger<TeamsAdapter> logger, IHttpClientFactory httpClientFactory)
+               : base(configuration, httpClientFactory, logger)
         {
             OnTurnError = async (turnContext, exception) =>
             {

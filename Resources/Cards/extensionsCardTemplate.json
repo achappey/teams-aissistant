@@ -125,6 +125,29 @@
           },
           {
             "type": "Input.ChoiceSet",
+            "id": "Graph",
+            "label": "Microsoft",
+            "choices": [
+              {
+                "title": "${usersText}",
+                "value": "Microsoft.Graph.User"
+              }
+            ],
+            "value": "${selectedGraphSources}",
+            "isMultiSelect": true,
+            "style": "filtered"
+          },
+          {
+            "type": "Input.ChoiceSet",
+            "id": "Dataverse",
+            "label": "Power Apps",
+            "choices": "${dataverses}",
+            "value": "${selectedDataverses}",
+            "isMultiSelect": true,
+            "style": "filtered"
+          },
+          {
+            "type": "Input.ChoiceSet",
             "id": "Sites",
             "label": "${sitesText}",
             "choices": "${siteChoices}",

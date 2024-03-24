@@ -18,6 +18,9 @@
   <data name="SitesText" xml:space="preserve">
     <value>Sites</value>
   </data>  
+  <data name="UsersText" xml:space="preserve">
+    <value>Gebruikers</value>
+  </data> 
   <data name="ListItemText" xml:space="preserve">
     <value>Lijstitem</value>
   </data>  

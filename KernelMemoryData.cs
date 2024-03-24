@@ -1,5 +1,4 @@
 using System.Text;
-using Microsoft.Bot.Builder;
 using Microsoft.KernelMemory;
 using Microsoft.Teams.AI.AI.Tokenizers;
 using TeamsAIssistant.Extensions;
@@ -26,7 +25,6 @@ namespace TeamsAIssistant.DataSources
                     var page = await graphClient.Sites[splitted.ElementAt(0)].Pages[citation.GetPageId()].GetAsync();
                     return page?.WebUrl;
                 case "ListItem":
-
                     if (citation.Partitions.Any(e => e.Tags.ContainsKey("simplicateModule")))
                     {
                         if (simplicateClient == null)
@@ -47,6 +45,30 @@ namespace TeamsAIssistant.DataSources
                         var item = await response.Content.ReadFromJsonAsync<SimplicateItemData>();
 
                         return item?.Data?.SimplicateUrl;
+                    }
+                    else if (citation.Partitions.Any(e => e.Tags.ContainsKey("environment")))
+                    {
+                        var entityType = citation.Partitions.FirstOrDefault(e => e.Tags.ContainsKey("entityType"))?.Tags["entityType"]?.FirstOrDefault();
+                        var environment = splitted.FirstOrDefault()?.Split(".---.").LastOrDefault();
+
+                        return $"https://{environment}.dynamics.com/main.aspx?etn={entityType}&id={splitted.LastOrDefault()}&pagetype=entityrecord";
+                    }
+                    if (citation.Partitions.Any(e => e.Tags.ContainsKey("entityType")))
+                    {
+                        var table = citation.Partitions.FirstOrDefault(e => e.Tags.ContainsKey("entityType"))?.Tags["entityType"]?.FirstOrDefault();
+
+                        switch (table)
+                        {
+                            case "Microsoft.Graph.User":
+                                var user = await graphClient.Users[splitted.LastOrDefault()].GetAsync((config) =>
+                                {
+                                    config.QueryParameters.Select = ["mySite"];
+                                });
+
+                                return user?.MySite;
+                            default:
+                               return string.Empty;
+                        }
                     }
                     else
                     {
@@ -73,6 +95,8 @@ namespace TeamsAIssistant.DataSources
             IEnumerable<string>? teamIndexes,
             IEnumerable<string>? driveIndexes,
             IEnumerable<string>? simplicateIndexes,
+            IEnumerable<string>? dataverseIndexes,
+            IEnumerable<string>? graphIndexes,
             IEnumerable<string>? yearFilters)
         {
             List<MemoryFilter> filters = [];
@@ -89,6 +113,10 @@ namespace TeamsAIssistant.DataSources
                     filters.AddRange(driveFilters ?? []);
                     var simplicateFilters = simplicateIndexes?.Select(a => MemoryFilters.ByTag("simplicateModule", a).ByTag("year", year));
                     filters.AddRange(simplicateFilters ?? []);
+                    var dataverseFilters = dataverseIndexes?.Select(a => MemoryFilters.ByTag("environment", a).ByTag("year", year));
+                    filters.AddRange(dataverseFilters ?? []);
+                    var graphFilters = graphIndexes?.Select(a => MemoryFilters.ByTag("entityType", a).ByTag("year", year));
+                    filters.AddRange(graphFilters ?? []);
                 }
             }
             else
@@ -97,6 +125,8 @@ namespace TeamsAIssistant.DataSources
                 filters.AddRange(teamIndexes?.Select(a => MemoryFilters.ByTag("teamId", a)) ?? []);
                 filters.AddRange(driveIndexes?.Select(a => MemoryFilters.ByTag("driveId", a)) ?? []);
                 filters.AddRange(simplicateIndexes?.Select(a => MemoryFilters.ByTag("simplicateModule", a)) ?? []);
+                filters.AddRange(dataverseIndexes?.Select(a => MemoryFilters.ByTag("environment", a)) ?? []);
+                filters.AddRange(graphIndexes?.Select(a => MemoryFilters.ByTag("entityType", a)) ?? []);
             }
 
             return filters;
@@ -119,7 +149,6 @@ namespace TeamsAIssistant.DataSources
 
         public async Task<(string context, List<Citation>? citations)> RenderDataAsync(string query,
             TeamsAIssistantState memory,
-            ITurnContext context,
             ITokenizer tokenizer,
             int maxTokens)
         {
@@ -135,7 +164,8 @@ namespace TeamsAIssistant.DataSources
                 return noContext;
             }
 
-            var filters = GetFilters(memory.SiteIndexes, memory.TeamIndexes, memory.DriveIndexes, memory.SimplicateIndexes, memory.YearFilters);
+            var filters = GetFilters(memory.SiteIndexes, memory.TeamIndexes, memory.DriveIndexes,
+                memory.SimplicateIndexes, memory.DataverseIndexes, memory.GraphIndexes, memory.YearFilters);
 
             var results = await indexService.Search(query,
                 indexes: memory.TypeFilters.Count != 0 ? memory.TypeFilters : null,
@@ -154,9 +184,11 @@ namespace TeamsAIssistant.DataSources
 
             if (lastUpdated <= DateTime.Now.AddDays(-1) && graphClientServiceProvider != null)
             {
-                UpdateIndexes(memory.SiteIndexes, async site => await indexService.AddSiteToVectorIndex(site));
-                UpdateIndexes(memory.TeamIndexes, async team => await indexService.AddTeamToVectorIndex(team));
-                UpdateIndexes(memory.SimplicateIndexes, async team => await indexService.AddSimplicateVectorIndex());
+                UpdateIndexes(memory.SiteIndexes, site => indexService.AddSiteToVectorIndex(site));
+                UpdateIndexes(memory.TeamIndexes, indexService.AddTeamToVectorIndex);
+                UpdateIndexes(memory.SimplicateIndexes, team => indexService.AddSimplicateVectorIndex());
+                UpdateIndexes(memory.DataverseIndexes, indexService.AddDataverseToVectorIndex);
+                UpdateIndexes(memory.GraphIndexes, indexService.AddGraphToVectorIndex);
             }
 
             int length = 0;

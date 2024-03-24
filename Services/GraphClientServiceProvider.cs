@@ -6,10 +6,29 @@ namespace TeamsAIssistant.Services;
 
 public class GraphClientServiceProvider(TeamsAdapter teamsAdapter)
 {
+
+    private IDictionary<string, string> _dataverseTokens = new Dictionary<string, string>();
     private string? _token;
     private string? _aadObjectId;
 
     private GraphServiceClient? _graphServiceClient;
+
+    public void SetDataverseToken(string key, string token)
+    {
+        if (_dataverseTokens.ContainsKey(key))
+        {
+            _dataverseTokens[key] = token;
+        }
+        else
+        {
+            _dataverseTokens.Add(key, token);
+        }
+    }
+
+    public string? GetDataverseToken(string key)
+    {
+        return _dataverseTokens[key];
+    }
 
     public void SetToken(string? token)
     {

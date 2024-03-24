@@ -24,6 +24,8 @@
         public string? DriveIndexes { get; set; }
         public string? SiteIndexes { get; set; }
         public double? MinRelevance { get; set; }
+        public string? DataverseConnections { get; set; }
+        public string? Pexels { get; set; }
                 
     }
 

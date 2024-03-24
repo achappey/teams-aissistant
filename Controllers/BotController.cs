@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Integration.AspNet.Core;
+using Microsoft.Teams.AI;
 
 namespace MathBot.Controllers
 {
     [Route("api/messages")]
     [ApiController]
-    public class BotController(IBotFrameworkHttpAdapter adapter, IBot bot) : ControllerBase
+    public class BotController(TeamsAdapter adapter, IBot bot) : ControllerBase
     {
         
         [HttpPost]

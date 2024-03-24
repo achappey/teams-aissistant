@@ -59,6 +59,18 @@ namespace TeamsAIssistant.State
             set => Conversation?.Set("kernelmemory_simplicate_indexes", value);
         }
 
+        public List<string> DataverseIndexes
+        {
+            get => Conversation?.Get<List<string>>("kernelmemory_dataverse_indexes") ?? [];
+            set => Conversation?.Set("kernelmemory_dataverse_indexes", value);
+        }
+
+        public List<string> GraphIndexes
+        {
+            get => Conversation?.Get<List<string>>("kernelmemory_graph_indexes") ?? [];
+            set => Conversation?.Set("kernelmemory_graph_indexes", value);
+        }
+
         public List<string> TeamIndexes
         {
             get => Conversation?.Get<List<string>>("kernelmemory_team_indexes") ?? [];

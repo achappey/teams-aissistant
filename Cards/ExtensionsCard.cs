@@ -106,6 +106,9 @@ namespace TeamsAIssistant.AdaptiveCards
 
         public IEnumerable<Site>? Sites { get; set; }
         public IEnumerable<Team>? Teams { get; set; }
+        public IEnumerable<AdaptiveChoice>? Dataverses { get; set; }
+        public string? SelectedDataverses { get; set; }
+        public string? SelectedGraphSources { get; set; }
 
         public IEnumerable<AdaptiveChoice>? SelectablePlugins
         {
@@ -138,6 +141,7 @@ namespace TeamsAIssistant.AdaptiveCards
         public string? OptionsText => GetResourceString("OptionsText");
         public string? ExportPluginOutputText => GetResourceString("ExportPluginOutputText");
         public string? SitesText => GetResourceString("SitesText");
+        public string? UsersText => GetResourceString("UsersText");
         public string? SourceText => GetResourceString("SourceText");
         public string? ExtensionsText => GetResourceString("ExtensionsText");
         public string? TeamsText => GetResourceString("TeamsText");

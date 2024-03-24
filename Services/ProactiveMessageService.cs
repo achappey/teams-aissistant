@@ -18,7 +18,7 @@ public class ProactiveMessageService(TeamsAdapter adapter, IConfiguration config
     {
         string? activityId = updateCardId;
 
-        await adapter.ContinueConversationAsync(_appId, conversationReference, async (turnContext, cancellationToken) =>
+        await adapter.ContinueConversationAsync(_appId, conversationReference, async (turnContext, currentCancellationToken) =>
         {
             var card = createCardFunc().ToAdaptiveCardAttachment();
 
@@ -32,9 +32,11 @@ public class ProactiveMessageService(TeamsAdapter adapter, IConfiguration config
                 card.Id = activityId;
                 await turnContext.UpdateActivityAsync(card, cancellationToken);
             }
-            
+
         }, cancellationToken);
 
         return activityId;
+
+
     }
 }

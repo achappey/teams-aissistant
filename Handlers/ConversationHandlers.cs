@@ -73,8 +73,8 @@ namespace TeamsAIssistant.Handlers
         {
             var fetchAssistantsTask = FetchAssistants(turnState);
 
-            Task<IEnumerable<Models.Message>> messagesTask = Task.FromResult<IEnumerable<Models.Message>>([]);
-            Task<IEnumerable<(string model, int input, int output)>> threadUsageTask = Task.FromResult<IEnumerable<(string model, int input, int output)>>([]);
+            var messagesTask = Task.FromResult<IEnumerable<Models.Message>>([]);
+            var threadUsageTask = Task.FromResult<IEnumerable<(string model, int input, int output)>>([]);
 
             if (turnState.ThreadId != null)
             {
@@ -86,7 +86,7 @@ namespace TeamsAIssistant.Handlers
 
             var (assistant, assistants) = await fetchAssistantsTask;
             var messages = await messagesTask;
-            var threadUsageTotals = await threadUsageTask;
+            var threadUsage = await threadUsageTask;
 
             var tools = turnState.Tools.Count != 0 ? turnState.Tools.Where(a => !a.Value.IsFunctionTool()).Select(t => t.Key)
                 : assistant.Tools.GetNonFunctionTools().Select(AssistantExtensions.ToToolIdentifier);
@@ -95,7 +95,7 @@ namespace TeamsAIssistant.Handlers
 
             IEnumerable<string> assistantPlugins = assistant.GetPlugins().ToStringList() ?? [];
 
-            double? usage = threadUsageTotals.Select(a => AIPricing.CalculateCost(a.model, a.input, a.output)).Sum();
+            double? usage = threadUsage?.Select(a => AIPricing.CalculateCost(a.model, a.input, a.output)).Sum();
             var sourceCount = turnState.SiteIndexes.Count + turnState.TeamIndexes.Count + turnState.SimplicateIndexes.Count;
 
             MenuCardData menuCard = new(new CultureInfo(turnContext.Activity.Locale))
@@ -126,10 +126,10 @@ namespace TeamsAIssistant.Handlers
         private async Task<(Assistant assistant, IEnumerable<Assistant>? assistants)> FetchAssistants(
             TeamsAIssistantState turnState)
         {
-            var assistantTask = _assistantService.GetAssistantAsync(turnState.AssistantId);
-            var assistantsTask = _assistantService.GetAssistantsAsync(_graphClientServiceProvider.AadObjectId!);
-            var assistant = await assistantTask;
-            var assistants = await assistantsTask;
+            var assistant = await _assistantService.GetAssistantAsync(turnState.AssistantId);
+            var assistants = await _assistantService.GetAssistantsAsync(_graphClientServiceProvider.AadObjectId!);
+            //var assistant = await assistantTask;
+           // var assistants = await assistantsTask;
 
             return (assistant, assistants);
         }

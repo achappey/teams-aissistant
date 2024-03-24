@@ -51,7 +51,7 @@ namespace TeamsAIssistant.Handlers.Plugins.Graph
                             Content = content,
                         },
                         ToRecipients = toRecipients?.Select(GraphExtensions.ToRecipient).ToList(),
-                        CcRecipients = ccRecipients?.Select(GraphExtensions.ToRecipient).ToList()
+                        CcRecipients = ccRecipients?.Select(GraphExtensions.ToRecipient).ToList() ?? []
                     };
 
                     var message = await graphClient.Me.Messages.PostAsync(requestBody);

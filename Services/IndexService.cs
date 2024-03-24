@@ -10,7 +10,7 @@ namespace TeamsAIssistant.Services
 {
   public class IndexService(IConfiguration configuration,
     TeamsAdapter teamsAdapter,
-    GraphClientServiceProvider? graphClientServiceProvider = null)
+    GraphClientServiceProvider graphClientServiceProvider)
   {
     private readonly QueueClient _indexQueue = new(configuration.Get<ConfigOptions>()!.IndexQueue, "index-items");
     private readonly HttpClient _client = teamsAdapter.HttpClientFactory.CreateClient("VectorSearch");
@@ -39,10 +39,10 @@ namespace TeamsAIssistant.Services
 
     public async Task AddSiteToVectorIndex(string siteId, string? teamId = null)
     {
-      if (graphClientServiceProvider == null)
-      {
-        throw new UnauthorizedAccessException();
-      }
+      /*   if (graphClientServiceProvider == null)
+         {
+           throw new UnauthorizedAccessException();
+         }*/
 
       var request = new
       {
@@ -51,9 +51,11 @@ namespace TeamsAIssistant.Services
         Token = graphClientServiceProvider.GetToken()
       };
 
-      var base64EncodedMessage = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request)));
+      await AddMessageToQueue(request);
 
-      await _indexQueue.SendMessageAsync(base64EncodedMessage);
+      //var base64EncodedMessage = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request)));
+
+      //await _indexQueue.SendMessageAsync(base64EncodedMessage);
     }
 
     public async Task AddSimplicateVectorIndex()
@@ -63,17 +65,19 @@ namespace TeamsAIssistant.Services
         Simplicate = true
       };
 
-      var base64EncodedMessage = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request)));
+      await AddMessageToQueue(request);
 
-      await _indexQueue.SendMessageAsync(base64EncodedMessage);
+      //  var base64EncodedMessage = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request)));
+
+      // await _indexQueue.SendMessageAsync(base64EncodedMessage);
     }
 
-    public async Task AddTeamToVectorIndex(string teamId, DateTimeOffset? modifiedAfter = null)
+    public async Task AddTeamToVectorIndex(string teamId)
     {
-      if (graphClientServiceProvider == null)
-      {
-        throw new UnauthorizedAccessException();
-      }
+      /*  if (graphClientServiceProvider == null)
+        {
+          throw new UnauthorizedAccessException();
+        }*/
 
       var request = new
       {
@@ -81,9 +85,40 @@ namespace TeamsAIssistant.Services
         Token = graphClientServiceProvider.GetToken()
       };
 
-      var base64EncodedMessage = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request)));
+      await AddMessageToQueue(request);
+
+      //  var base64EncodedMessage = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request)));
+
+      //  await _indexQueue.SendMessageAsync(base64EncodedMessage);
+    }
+
+    public async Task AddMessageToQueue(dynamic item)
+    {
+      var base64EncodedMessage = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(item)));
 
       await _indexQueue.SendMessageAsync(base64EncodedMessage);
+    }
+
+    public async Task AddDataverseToVectorIndex(string environment)
+    {
+      var request = new
+      {
+        DataverseEnvironment = environment,
+        Dataverse = graphClientServiceProvider.GetDataverseToken(environment.Split(";").ElementAt(0))
+      };
+
+      await AddMessageToQueue(request);
+    }
+
+    public async Task AddGraphToVectorIndex(string environment)
+    {
+      var request = new
+      {
+        GraphData = environment,
+        Token = graphClientServiceProvider.GetToken()
+      };
+
+      await AddMessageToQueue(request);
     }
 
     private async Task<List<string>> AddListToVectorIndex(GraphServiceClient graphServiceClient, string siteId, string listId, DateTimeOffset? modifiedAfter = null, string? teamId = null)

@@ -125,7 +125,6 @@ builder.Services.AddSingleton(_ => new AssistantsPlannerOptions(config.OpenAI.Ap
     Organization = config.OpenAI.Organization,
 });
 
-
 builder.Services.AddSingleton<KeyVaultClientProvider>();
 builder.Services.AddSingleton<KeyVaultRepository>();
 builder.Services.AddScoped<DriveRepository>();
@@ -143,6 +142,7 @@ builder.Services.AddSingleton(sp =>
                                         .WithLegacyCacheCompatibility(false)
                                         .Build();
     app.AddInMemoryTokenCache();
+
     return app;
 });
 
@@ -153,7 +153,7 @@ builder.Services.AddTransient<IBot>(sp =>
 {
     var msal = sp.GetRequiredService<IConfidentialClientApplication>();
     var adapter = sp.GetRequiredService<TeamsAdapter>();
-    ILoggerFactory loggerFactory = sp.GetRequiredService<ILoggerFactory>();
+    var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
     var graphClientServiceProvider = sp.GetRequiredService<GraphClientServiceProvider>();
     var assistantService = sp.GetRequiredService<AssistantService>();
     var indexService = sp.GetService<IndexService>();
@@ -178,6 +178,7 @@ builder.Services.AddTransient<IBot>(sp =>
     IPlanner<TeamsAIssistantState> planner = new TeamsAIssistantPlanner(
         actionPlannerOptions,
         sp.GetRequiredService<KernelMemoryData>(),
+        adapter,
         assistantService,
         sp.GetRequiredService<AssistantsPlannerOptions>(),
         loggerFactory);
@@ -186,10 +187,12 @@ builder.Services.AddTransient<IBot>(sp =>
     var appBuilder = new ApplicationBuilder<TeamsAIssistantState>()
            .WithStorage(sp.GetRequiredService<IStorage>())
            .WithAIOptions(new AIOptions<TeamsAIssistantState>(planner))
-           .WithLoggerFactory(loggerFactory);
-
+           .WithLoggerFactory(loggerFactory)
+           .WithLongRunningMessages(adapter, config.BOT_ID!);
 
     AuthenticationOptions<TeamsAIssistantState> options = new();
+    var dataverseConnections = config.DataverseConnections?.ToStringList() ?? [];
+
     if (!string.IsNullOrEmpty(config.CONNECTION_NAME))
     {
         options.AddAuthentication(Auth.Graph, new OAuthSettings()
@@ -201,12 +204,50 @@ builder.Services.AddTransient<IBot>(sp =>
                 config.AAD_APP_CLIENT_SECRET, oAuthScope: config.AAD_APP_SCOPES!, channelAuthTenant: config.AAD_APP_TENANT_ID),
             Title = "Click here"
         });
+
+        foreach (var connection in dataverseConnections)
+        {
+            var connectionName = connection.Split(";").ElementAt(0);
+            var resourceName = connection.Split(";").ElementAt(1);
+            string resource = $"https://{resourceName}.dynamics.com";
+            var scope = resource + "/.default";
+
+            options.AddAuthentication(connectionName, new OAuthSettings()
+            {
+                ConnectionName = connectionName,
+                Text = $"Login at {connectionName}",
+                EnableSso = true,
+                OAuthAppCredentials = new MicrosoftAppCredentials(config.AAD_APP_CLIENT_ID,
+                              config.AAD_APP_CLIENT_SECRET, oAuthScope: scope, channelAuthTenant: config.AAD_APP_TENANT_ID),
+                Title = "Click here"
+            });
+        }
+
+
+
     }
     else
     {
         string signInLink = $"https://{config.BOT_DOMAIN}/auth-start.html";
 
         options.AddAuthentication(Auth.Graph, new TeamsSsoSettings(config.AAD_APP_SCOPES!.Split(","), signInLink, msal));
+/*
+        foreach (var connection in dataverseConnections)
+        {
+            var connectionName = connection.Split(";").ElementAt(0);
+            var resourceName = connection.Split(";").ElementAt(1);
+            string resource = $"https://{resourceName}.dynamics.com";
+            var scope = resource + "/.default";
+            options.AddAuthentication(connection, new OAuthSettings()
+            {
+                ConnectionName = connectionName,
+                Text = $"Login at {connectionName}",
+                EnableSso = true,
+                OAuthAppCredentials = new MicrosoftAppCredentials(config.AAD_APP_CLIENT_ID,
+                              config.AAD_APP_CLIENT_SECRET, oAuthScope: scope, channelAuthTenant: config.AAD_APP_TENANT_ID),
+                Title = "Click here"
+            });
+        }*/
     }
 
     appBuilder = appBuilder.WithAuthentication(adapter, options);
@@ -252,24 +293,59 @@ builder.Services.AddTransient<IBot>(sp =>
     var extensionsHandlers = sp.GetRequiredService<ExtensionsHandlers>();
     var fileHandlers = sp.GetRequiredService<FileHandlers>();
     var conversationHandlers = sp.GetRequiredService<ConversationHandlers>();
+    var memCache = sp.GetRequiredService<IMemoryCache>();
 
     app.OnMessage("/export", attachmentHandlers.ExportMessagesHandler);
     app.OnMessage("/reset", conversationHandlers.HandleResetMessageHandler);
+
     app.OnMessage("/files", fileHandlers.SourcesMessageHandler);
     app.OnMessage("/assistant", assistantHandlers.AssistantMessageHandler);
     app.OnMessage("/extensions", extensionsHandlers.MenuHandler);
     app.OnMessage("/menu", conversationHandlers.MenuHandler);
     //app.OnConversationUpdate(ConversationUpdateEvents.MembersAdded, conversationHandlers.MemberAddedHandler);
 
+
+
     app.OnBeforeTurn(async (turnContext, turnState, cancellationToken) =>
     {
-        return await Task.Run(() =>
+        return await Task.Run(async () =>
         {
             conversationHandlers.EnsureDefaultSources(turnState, config);
-
             var token = turnState.GetGraphToken();
             graphClientServiceProvider.SetToken(token);
 
+            if (turnState.User?.ContainsKey("__InSignInFlow__") == true)
+            {
+                return true;
+            }
+
+            foreach (var connection in dataverseConnections)
+            {
+                var connectionName = connection.Split(";").ElementAt(0);
+                var cacheKey = $"AuthTokens_{connectionName}_{graphClientServiceProvider.AadObjectId}";
+
+                var cachedToken = memCache.Get<string>(cacheKey);
+
+                if (string.IsNullOrEmpty(cachedToken))
+                {
+                    var dataverse = await app.GetTokenOrStartSignInAsync(turnContext, turnState, connectionName, cancellationToken);
+
+                    if (dataverse != null)
+                    {
+                        graphClientServiceProvider.SetDataverseToken(connectionName, dataverse);
+                        memCache.Set(cacheKey, dataverse, TimeSpan.FromHours(1));
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else {
+                     graphClientServiceProvider.SetDataverseToken(connectionName, cachedToken);
+                }
+
+            }
+            // }
             return true;
         });
     });
@@ -303,13 +379,14 @@ builder.Services.AddTransient<IBot>(sp =>
     app.Authentication.Get(Auth.Graph).OnUserSignInFailure(async (context, state, ex) =>
     {
         await context.SendActivityAsync("Failed to login");
-        await context.SendActivityAsync($"Error message: {ex.Message}");
     });
+
 
     return app;
 });
 
-static async Task HandleActivityAsync(ITurnContext turnContext, TeamsAIssistantState turnState, CancellationToken cancellationToken, string userId,
+static async Task HandleActivityAsync(ITurnContext turnContext,
+    TeamsAIssistantState turnState, CancellationToken cancellationToken, string userId,
     Application<TeamsAIssistantState> app, IServiceProvider sp, AttachmentHandlers attachmentHandlers, ConversationHandlers conversationHandlers)
 {
     if (turnContext.Activity.Text != null && turnContext.Activity.Text.Trim().Equals($"/{turnContext.Activity.Recipient.Name}"))
@@ -365,7 +442,6 @@ static async Task HandleActivityAsync(ITurnContext turnContext, TeamsAIssistantS
                 }
             }
         }
-
     }
 }
 

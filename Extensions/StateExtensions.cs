@@ -17,7 +17,18 @@ namespace TeamsAIssistant.Extensions
 
         public static bool HasIndexes(this TeamsAIssistantState state)
         {
-            return state.HasSiteIndexes() || state.HasTeamIndexes() || state.HasSimplicateIndexes() || state.HasDriveIndexes();
+            return state.HasSiteIndexes() || state.HasTeamIndexes() || state.HasSimplicateIndexes() || state.HasGraphIndexes()
+             || state.HasDriveIndexes() || state.HasDataverseIndexes();
+        }
+
+        public static bool HasGraphIndexes(this TeamsAIssistantState state)
+        {
+            return state.GraphIndexes.Count != 0;
+        }
+
+        public static bool HasDataverseIndexes(this TeamsAIssistantState state)
+        {
+            return state.DataverseIndexes.Count != 0;
         }
 
         public static bool HasDriveIndexes(this TeamsAIssistantState state)

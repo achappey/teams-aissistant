@@ -18,6 +18,9 @@
   <data name="AppendUserNameText" xml:space="preserve">
     <value>Append username</value>
   </data> 
+  <data name="UsersText" xml:space="preserve">
+    <value>Users</value>
+  </data> 
   <data name="OrganizationText" xml:space="preserve">
     <value>Organization</value>
   </data> 

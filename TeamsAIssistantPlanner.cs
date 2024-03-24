@@ -1,5 +1,6 @@
 using Microsoft.Bot.Builder;
 using Microsoft.KernelMemory;
+using Microsoft.Teams.AI;
 using Microsoft.Teams.AI.AI;
 using Microsoft.Teams.AI.AI.Planners;
 using Microsoft.Teams.AI.AI.Planners.Experimental;
@@ -13,11 +14,12 @@ namespace TeamsAIssistant.Planner
     public class TeamsAIssistantPlanner(
         ActionPlannerOptions<TeamsAIssistantState> actionPlannerOptions,
         KernelMemoryData kernelMemoryData,
+        TeamsAdapter teamsAdapter,
         AssistantService assistantService,
         AssistantsPlannerOptions assistantsPlannerOptions, ILoggerFactory logger) : IPlanner<TeamsAIssistantState>
     {
         private readonly ActionPlanner<TeamsAIssistantState> actionPlanner = new(actionPlannerOptions, logger);
-        private readonly AssistantsPlanner<TeamsAIssistantState> assistantsPlanner = new(assistantsPlannerOptions, logger);
+        private readonly AssistantsPlanner<TeamsAIssistantState> assistantsPlanner = new(assistantsPlannerOptions, logger, teamsAdapter.HttpClientFactory.CreateClient("AssistantAI"));
 
         public async Task<Plan> BeginTaskAsync(ITurnContext turnContext, TeamsAIssistantState turnState,
             AI<TeamsAIssistantState> ai, CancellationToken cancellationToken = default)
@@ -47,7 +49,6 @@ namespace TeamsAIssistant.Planner
 
                 var (context, citations) = await kernelMemoryData.RenderDataAsync(query,
                     turnState,
-                    turnContext,
                     actionPlanner.Options.Tokenizer,
                     turnState.ContextLength ?? Constants.AIConstants.DefaultContextTokenLength);
 

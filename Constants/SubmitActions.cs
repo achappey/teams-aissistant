@@ -29,20 +29,22 @@ namespace TeamsAIssistant.Constants
         public const string Indexes = "Indexes";
         public const string Sites = "Sites";
         public const string Teams = "Teams";
+        public const string Dataverse = "Dataverse";
+        public const string Graph = "Graph";
         public const string MaxCitations = "MaxCitations";
         public const string ContextLength = "ContextLength";
-        public const string MinRelevance = "MinRelevance";        
+        public const string MinRelevance = "MinRelevance";
         public const string Simplicate = "Simplicate";
         public const string Years = "Years";
         public const string Types = "Types";
         public const string DescriptionId = "DescriptionId";
-        public const string AdditionalInstructionsId = "AdditionalInstructionsId";        
+        public const string AdditionalInstructionsId = "AdditionalInstructionsId";
         public const string NameId = "NameId";
         public const string InstructionId = "InstructionId";
         public const string MetadataId = "MetadataId";
         public const string Tools = "Tools";
         public const string ExportFunctionOutput = "ExportFunctionOutput";
-        public const string AdditionalInstructionsContext = "AdditionalInstructionsContext";        
+        public const string AdditionalInstructionsContext = "AdditionalInstructionsContext";
         public const string PrependDateTime = "PrependDateTime";
         public const string PrependUsername = "PrependUsername";
         public const string ExportToolCalls = "ExportToolCalls";
@@ -50,7 +52,7 @@ namespace TeamsAIssistant.Constants
         public const string Team = "Team";
         public const string Visibility = "Visibility";
         public const string FileId = "FileId";
-        public const string FileIds = "FileIds";       
+        public const string FileIds = "FileIds";
 
     }
 
