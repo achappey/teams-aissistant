@@ -27,7 +27,7 @@ namespace TeamsAIssistant.Handlers.Plugins.Pexels
             {
                 var items = await client.SearchPhotosAsync(
                         query: query,
-                        pageSize: 5,
+                        pageSize: DefaultPageSize,
                         page: page,
                         size: size,
                         orientation: orientation,
@@ -36,6 +36,29 @@ namespace TeamsAIssistant.Handlers.Plugins.Pexels
 
                 return JsonConvert.SerializeObject(items.photos);
             });
+        }
+
+        [Action("Pexels.GetCuratedPhotos")]
+        [Description("This endpoint enables you to receive real-time photos curated by the Pexels team. We add at least one new photo per hour to our curated list so that you always get a changing selection of trending photos")]
+        [Parameter(name: "page", type: "number", description: "The page number you are requesting", minimum: 1)]
+        public async Task<string> GetCuratedPhotos([ActionTurnContext] ITurnContext turnContext, [ActionTurnState] TeamsAIssistantState turnState,
+            [ActionName] string actionName, [ActionParameters] Dictionary<string, object> parameters)
+        {
+            var cardId = await SendFunctionCard(turnContext, actionName, parameters);
+            var page = parameters.TryGetValue("page", out object? value) ? int.Parse(value.ToString()!) : 1;
+
+            try
+            {
+                var result = await client.CuratedPhotosAsync(page, pageSize: DefaultPageSize);
+                var json = JsonConvert.SerializeObject(result.photos);
+                await UpdateFunctionCard(turnContext, turnState, actionName, parameters, json, cardId);
+
+                return json;
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
         }
     }
 }

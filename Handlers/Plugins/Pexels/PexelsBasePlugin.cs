@@ -13,6 +13,7 @@ namespace TeamsAIssistant.Handlers.Plugins.Pexels
         : PluginBase(driveRepository, proactiveMessageService, name, "Pexels", "Image & Video", "v1")
     {
         protected readonly PexelsClient client = new(configuration.Get<ConfigOptions>()?.Pexels);
+        protected readonly int DefaultPageSize = 5;
 
         protected async Task<string> SearchMediaAsync(ITurnContext turnContext, TeamsAIssistantState turnState,
             string actionName, Dictionary<string, object> parameters, Func<string, int, string?, string?, string?, Task<string>> searchFunction)

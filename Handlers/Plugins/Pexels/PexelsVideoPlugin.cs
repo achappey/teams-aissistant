@@ -37,5 +37,43 @@ namespace TeamsAIssistant.Handlers.Plugins.Pexels
                 return JsonConvert.SerializeObject(items.videos);
             });
         }
+
+        [Action("Pexels.GetPopularVideos")]
+        [Description("This endpoint enables you to receive the current popular Pexels videos")]
+        [Parameter(name: "page", type: "number", description: "The page number you are requesting", minimum: 1)]
+        [Parameter(name: "min_width", type: "number", description: "The minimum width in pixels of the returned videos.")]
+        [Parameter(name: "min_height", type: "number", description: "The minimum height in pixels of the returned videos")]
+        [Parameter(name: "min_duration", type: "number", description: "The minimum duration in seconds of the returned videos")]
+        [Parameter(name: "max_duration", type: "number", description: "The maximum duration in seconds of the returned videos")]
+        public async Task<string> GetPopularVideos([ActionTurnContext] ITurnContext turnContext, [ActionTurnState] TeamsAIssistantState turnState,
+          [ActionName] string actionName, [ActionParameters] Dictionary<string, object> parameters)
+        {
+            var cardId = await SendFunctionCard(turnContext, actionName, parameters);
+            var page = parameters.TryGetValue("page", out object? value) ? int.Parse(value.ToString()!) : 1;
+            var max_duration = parameters.TryGetValue("max_duration", out object? max_durationValue) ? int.Parse(max_durationValue.ToString()!) : int.MaxValue;
+            var min_duration = parameters.TryGetValue("min_duration", out object? min_durationValue) ? int.Parse(min_durationValue.ToString()!) : 0;
+            var min_height = parameters.TryGetValue("min_height", out object? min_heightValue) ? int.Parse(min_heightValue.ToString()!) : 0;
+            var min_width = parameters.TryGetValue("min_width", out object? min_widthValue) ? int.Parse(min_widthValue.ToString()!) : 0;
+
+            try
+            {
+                var result = await client.PopularVideosAsync(page: page,
+                    minDurationSecs: min_duration,
+                    maxDurationSecs: max_duration,
+                    minHeight: min_height,
+                    pageSize: DefaultPageSize,
+                    minWidth: min_width);
+
+                var json = JsonConvert.SerializeObject(result.videos);
+                
+                await UpdateFunctionCard(turnContext, turnState, actionName, parameters, json, cardId);
+
+                return json;
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+        }
     }
 }
