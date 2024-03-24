@@ -43,7 +43,7 @@
     <PackageReference Include="Microsoft.KernelMemory.AI.OpenAI" Version="0.35.240321.1" />
     <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.35.240321.1" />
     <PackageReference Include="SharpToken" Version="1.2.17" />
-    <PackageReference Include="JsonSchema.Net" Version="6.0.5" />
+    <PackageReference Include="JsonSchema.Net" Version="6.0.6" />
   </ItemGroup>
 
  <ItemGroup>
