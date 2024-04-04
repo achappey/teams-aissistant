@@ -101,6 +101,7 @@ namespace TeamsAIssistant.Handlers
             MenuCardData menuCard = new(new CultureInfo(turnContext.Activity.Locale))
             {
                 Assistant = assistant,
+                Temperature = turnState.Temperature.ToString(CultureInfo.InvariantCulture),
                 IsAuthenticated = turnState.IsAuthenticated(),
                 AssistantPlugins = assistantPlugins,
                 Assistants = assistants?.Select(t => new AdaptiveChoice() { Value = t.Id, Title = t.Name! }),
@@ -159,6 +160,7 @@ namespace TeamsAIssistant.Handlers
         {
             turnState.AssistantId = jObject[AssistantForm.AssistantId]?.Value<string>() ?? string.Empty;
             turnState.Model = jObject[AssistantForm.ModelId]?.Value<string>() ?? string.Empty;
+            turnState.Temperature = jObject[AssistantForm.TemperatureId]?.Value<double>() ?? 1;
             turnState.PrependDateTime = jObject[AssistantForm.PrependDateTime]?.Value<bool>() ?? false;
             turnState.PrependUsername = jObject[AssistantForm.PrependUsername]?.Value<bool>() ?? false;
             turnState.ExportToolCalls = jObject[AssistantForm.ExportToolCalls]?.Value<bool>() ?? false;

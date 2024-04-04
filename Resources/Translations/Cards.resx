@@ -21,6 +21,9 @@
   <data name="UsersText" xml:space="preserve">
     <value>Users</value>
   </data> 
+  <data name="TemperatureText" xml:space="preserve">
+    <value>Temperature</value>
+  </data> 
   <data name="OrganizationText" xml:space="preserve">
     <value>Organization</value>
   </data> 
@@ -172,7 +175,7 @@
     <value>Export</value>
   </data>
   <data name="ExportToolCallsText" xml:space="preserve">
-    <value>Export code interpreter logs</value>
+    <value>Export code interpreter logs to Excel</value>
   </data>
   <data name="ToolsText" xml:space="preserve">
     <value>Tools</value>

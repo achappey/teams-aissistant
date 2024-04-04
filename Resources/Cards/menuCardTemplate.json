@@ -48,6 +48,10 @@
           "$when": "${selectedToolNames == null}"
         },
         {
+          "title": "${temperatureText}",
+          "value": "${temperature}"
+        },
+        {
           "title": "${additionalInstructionsText}",
           "value": "${yesText}",
           "$when": "${hasAdditionalInstructions}"
@@ -166,6 +170,15 @@
             ],
             "value": "${selectedToolValues}",
             "isMultiSelect": true,
+            "style": "compact"
+          },
+          {
+            "type": "Input.ChoiceSet",
+            "id": "Temperature",
+            "required": true,
+            "label": "${temperatureText}",
+            "choices": "${temperatureChoices}",
+            "value": "${temperature}",
             "style": "compact"
           },
           {

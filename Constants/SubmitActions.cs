@@ -26,6 +26,7 @@ namespace TeamsAIssistant.Constants
         public const string AssistantId = "AssistantId";
         public const string DeleteAssistantId = "DeleteAssistantId";
         public const string ModelId = "ModelId";
+        public const string TemperatureId = "Temperature";
         public const string Indexes = "Indexes";
         public const string Sites = "Sites";
         public const string Teams = "Teams";

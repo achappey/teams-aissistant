@@ -2,6 +2,7 @@ using AdaptiveCards;
 using System.Globalization;
 using Microsoft.Teams.AI.AI.OpenAI.Models;
 using TeamsAIssistant.Models.Cards;
+using TeamsAIssistant.Extensions;
 
 namespace TeamsAIssistant.AdaptiveCards
 {
@@ -16,6 +17,7 @@ namespace TeamsAIssistant.AdaptiveCards
         public string? BotName { get; set; }
         public bool IsAuthenticated { get; set; }
         public string? Model { get; set; }
+        public string? Temperature { get; set; }
         public IEnumerable<string>? Tools { get; set; }
         public string? AdditionalInstructions { get; set; }
         public int MessageCount { get; set; }
@@ -27,6 +29,26 @@ namespace TeamsAIssistant.AdaptiveCards
         public IEnumerable<string>? AllPlugins { get; set; }
 
         public int? SelectedSourcesCount { get; set; }
+
+        public IEnumerable<AdaptiveChoice>? TemperatureChoices
+        {
+            get
+            {
+                return Temperatures?.Select(CardExtensions.ToAdaptiveChoice);
+            }
+        }
+
+        public IEnumerable<string>? Temperatures
+        {
+            get
+            {
+                return Enumerable.Range(0, 11)
+                                         .Select(i => i / 10.0)
+                                         .Reverse()
+                                         .Select(a => a.ToString(CultureInfo.InvariantCulture))
+                                         .ToList();
+            }
+        }
 
         public bool HasSources
         {
@@ -59,7 +81,7 @@ namespace TeamsAIssistant.AdaptiveCards
         public string? ExportText => GetResourceString("ExportText");
         public string? NoText => GetResourceString("NoText");
         public string? YesText => GetResourceString("YesText");
-
+        public string? TemperatureText => GetResourceString("TemperatureText");
         public string? ContextLengthText => GetResourceString("ContextLengthText");
         public string? AdditionalInstructionsContextText => GetResourceString("AdditionalInstructionsContextText");
         public string? UsageText => GetResourceString("UsageText");
@@ -72,7 +94,7 @@ namespace TeamsAIssistant.AdaptiveCards
         public string? AppendDateTimeText => GetResourceString("AppendDateTimeText");
         public string? AppendUserNameText => GetResourceString("AppendUserNameText");
         public string? ProjectsText => GetResourceString("ProjectsText");
-        public string? SourcesText => GetResourceString("SourcesText");        
+        public string? SourcesText => GetResourceString("SourcesText");
         public string? ResetConversationText => GetResourceString("ResetConversationText");
         public string? NoSourceText => GetResourceString("NoSourceText");
         public string? MaxCitationsText => GetResourceString("MaxCitationsText");

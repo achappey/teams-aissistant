@@ -44,12 +44,11 @@ public class DownloadService(WebRepository webRepository, DriveRepository driveR
         var simplicateClient = await simplicateClientServiceProvider.GetAuthenticatedSimplicateClient(aadObjectId);
         using var response = await simplicateClient.GetAsync(attachment.Url);
         var queryParameters = HttpUtility.ParseQueryString(new Uri(attachment.Url).Query);
-        var filename = queryParameters["filename"];
         var simplicateByteContent = await response.Content.ReadAsByteArrayAsync();
 
         return new ()
         {
-          Filename = filename ?? string.Empty,
+          Filename = queryParameters["filename"] ?? string.Empty,
           Content = simplicateByteContent
         };
       }

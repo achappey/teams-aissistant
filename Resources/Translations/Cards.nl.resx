@@ -21,6 +21,9 @@
   <data name="UsersText" xml:space="preserve">
     <value>Gebruikers</value>
   </data> 
+  <data name="TemperatureText" xml:space="preserve">
+    <value>Temperatuur</value>
+  </data> 
   <data name="ListItemText" xml:space="preserve">
     <value>Lijstitem</value>
   </data>  
@@ -130,7 +133,7 @@
     <value>Export</value>
   </data>
   <data name="ExportToolCallsText" xml:space="preserve">
-    <value>Exporteer scriptverwerker logboeken</value>
+    <value>Exporteer scriptverwerker logboeken naar Excel</value>
   </data>
   <data name="ToolsText" xml:space="preserve">
     <value>Hulpmiddelen</value>
