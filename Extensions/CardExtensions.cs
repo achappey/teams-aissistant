@@ -74,7 +74,7 @@ namespace TeamsAIssistant.Extensions
                 [
                     new AdaptiveTextBlock
                     {
-                        Text = header,
+                        Text = header?.Split(".").Last(),
                         Size = AdaptiveTextSize.Large,
                         Weight = AdaptiveTextWeight.Bolder
                     }

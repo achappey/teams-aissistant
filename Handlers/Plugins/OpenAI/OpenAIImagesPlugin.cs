@@ -15,7 +15,7 @@ namespace TeamsAIssistant.Handlers.Plugins.AI
 
         [Action("OpenAI.CreateImage")]
         [Description("Creates an image with OpenAI Dall-E 3")]
-        [Parameter(name: "prompt", type: "string", required: true, maxLength: 4000, 
+        [Parameter(name: "prompt", type: "string", required: true, maxLength: 4000,
             description: "Prompt to create the image. Don't describe where the image is used for, only a very detailed description of how the image should look like")]
         [Parameter(name: "style", type: "string", required: true, enumValues: ["vivid", "natural"],
             description: "The style of the generated images. Must be one of vivid or natural. Vivid causes the model to lean towards generating hyper-real and dramatic images. Natural causes the model to produce more natural, less hyper-real looking images")]
@@ -57,6 +57,11 @@ namespace TeamsAIssistant.Handlers.Plugins.AI
                                 Size = size,
                                 Style = style
                             });
+
+                        foreach (var item in result.Results)
+                        {
+                            await turnContext.SendActivityAsync(MessageFactory.ContentUrl(item.Url, "image/png"));
+                        }
 
                         return result.Results;
                     });

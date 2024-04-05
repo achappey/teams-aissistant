@@ -65,7 +65,7 @@ namespace TeamsAIssistant.Handlers.Plugins
         {
             ResultCardData resultCardData = new(new CultureInfo(turnContext.Activity.Locale))
             {
-                Header = actionName,
+                Header = actionName?.Split(".").Last(),
                 SubTitle = SourceName,
                 Parameters = parameters?.Select(kv => new KeyValuePair<string, string>(kv.Key, kv.Value?.ToString() ?? string.Empty))
             };
@@ -117,7 +117,7 @@ namespace TeamsAIssistant.Handlers.Plugins
         {
             ConfirmedCardData confirmedCardData = new(new CultureInfo(turnContext.Activity.Locale))
             {
-                Header = actionName,
+                Header = actionName?.Split(".").Last(),
                 SubTitle = SourceName,
                 Parameters = parameters?.ToKeyValueList(),
                 Submitted = $"{DateTime.Now} by {turnContext.Activity.From.Name}"
@@ -144,7 +144,7 @@ namespace TeamsAIssistant.Handlers.Plugins
                     {
                         ResultCardData resultCardData = new(new CultureInfo(turnContext.Activity.Locale))
                         {
-                            Header = actionName,
+                            Header = actionName?.Split(".").Last(),
                             SubTitle = SourceName,
                             Parameters = parameters.ToKeyValueList(),
                             Filename = filename,

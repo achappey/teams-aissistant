@@ -345,7 +345,7 @@ builder.Services.AddTransient<IBot>(sp =>
                 }
 
             }
-            // }
+
             return true;
         });
     });
