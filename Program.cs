@@ -429,7 +429,7 @@ static async Task HandleActivityAsync(ITurnContext turnContext,
 
                 if (items.Any())
                 {
-                    var csvFile = JsonConvert.SerializeObject(items).ConvertJsonToCsv();
+                    var csvFile = await JsonConvert.SerializeObject(items).ConvertJsonToCsv();
 
                     if (csvFile != null)
                     {

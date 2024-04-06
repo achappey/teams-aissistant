@@ -89,7 +89,7 @@ namespace TeamsAIssistant.Repositories
     public async Task<string?> UploadDriveFileAsync(string folderName, string filename, byte[] file)
     {
       var graphClient = _graphClientServiceProvider.GetAuthenticatedGraphClient();
-      using MemoryStream memoryStream = new(file);
+      await using MemoryStream memoryStream = new(file);
       var userDrive = await graphClient.Me.Drive.GetAsync();
       var result = await graphClient.Drives[userDrive?.Id].Items["root"].ItemWithPath($"/{folderName}/{filename}").Content.PutAsync(memoryStream);
 

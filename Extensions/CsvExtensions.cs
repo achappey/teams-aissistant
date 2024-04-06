@@ -10,7 +10,7 @@ namespace TeamsAIssistant.Extensions
     public static class CsvExtensions
     {
 
-        public static byte[]? ConvertJsonToCsv(this string jsonInput)
+        public static Task<byte[]?> ConvertJsonToCsv(this string jsonInput)
         {
             var objects = ParseJson(jsonInput);
             var flattenedObjects = FlattenJsonObjects(objects);
@@ -52,7 +52,7 @@ namespace TeamsAIssistant.Extensions
             return nonEmptyColumns;
         }
 
-        private static byte[]? GenerateCsv(List<Dictionary<string, object>>? flattenedObjects, HashSet<string> nonEmptyColumns)
+        private static async Task<byte[]?> GenerateCsv(List<Dictionary<string, object>>? flattenedObjects, HashSet<string> nonEmptyColumns)
         {
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
@@ -67,9 +67,9 @@ namespace TeamsAIssistant.Extensions
 
             // Assuming an average of 50 bytes per field, adjust as needed.
             int estimatedSize = flattenedObjects.Count * nonEmptyColumns.Count * 50;
-            using var memoryStream = new MemoryStream(estimatedSize);
-            using var writer = new StreamWriter(memoryStream, Encoding.UTF8, 1024, leaveOpen: true);
-            using var csv = new CsvWriter(writer, config);
+            await using var memoryStream = new MemoryStream(estimatedSize);
+            await using var writer = new StreamWriter(memoryStream, Encoding.UTF8, 1024, leaveOpen: true);
+            await using var csv = new CsvWriter(writer, config);
 
             // Write CSV headers
             foreach (var header in nonEmptyColumns)

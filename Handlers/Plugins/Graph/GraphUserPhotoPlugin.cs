@@ -16,10 +16,10 @@ namespace TeamsAIssistant.Handlers.Plugins.Graph
         [Action("MicrosoftGraph.GetUserPhoto")]
         [Description("Gets the photo of a user")]
         [Parameter(name: "userId", type: "string", description: "Id of the user. Defaults to current user")]
-        public Task<string> GetUserPhoto([ActionTurnContext] TurnContext turnContext, [ActionTurnState] TeamsAIssistantState turnState,
+        public async Task<string> GetUserPhoto([ActionTurnContext] TurnContext turnContext, [ActionTurnState] TeamsAIssistantState turnState,
             [ActionName] string actionName, [ActionParameters] Dictionary<string, object> parameters)
         {
-            return ExecuteGraphQuery(
+            return await ExecuteGraphQuery(
                 turnContext, turnState, actionName, parameters,
                 async (graphClient, paramDict) =>
                     {
@@ -29,21 +29,19 @@ namespace TeamsAIssistant.Handlers.Plugins.Graph
 
                         var contentType = metadata?.AdditionalData["@odata.mediaContentType"]?.ToString();
 
-                        var result = parameters.TryGetValue("userId", out object? value)
+                        await using var result = parameters.TryGetValue("userId", out object? value)
                             ? await graphClient.Users[value.ToString()].Photo.Content.GetAsync()
                                 : await graphClient.Me.Photo.Content.GetAsync();
 
-                        using MemoryStream memoryStream = new();
+                        if (result == null)
+                        {
+                            return null;
+                        }
 
-                        result?.CopyTo(memoryStream);
+                        await using MemoryStream memoryStream = new();
+                        await result.CopyToAsync(memoryStream);
 
-                        IMessageActivity imageMessage = MessageFactory.Text(null);
-                        imageMessage.Attachments = [
-                            new() {
-                                    ContentType = contentType,
-                                    ContentUrl = $"data:{contentType};base64,{Convert.ToBase64String(memoryStream.ToArray())}"
-                                }
-                        ];
+                        IMessageActivity imageMessage = MessageFactory.ContentUrl($"data:{contentType};base64,{Convert.ToBase64String(memoryStream.ToArray())}", contentType);
 
                         await turnContext.SendActivityAsync(imageMessage);
 

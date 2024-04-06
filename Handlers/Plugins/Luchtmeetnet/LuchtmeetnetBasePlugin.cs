@@ -28,9 +28,9 @@ namespace TeamsAIssistant.Handlers.Plugins.Governments.NL
                 return response.ReasonPhrase ?? AIConstants.AIUnknownErrorMessage;
             }
 
-            using var stream = await response.Content.ReadAsStreamAsync();
+            await using var stream = await response.Content.ReadAsStreamAsync();
             using var reader = new StreamReader(stream);
-            using var jsonReader = new JsonTextReader(reader);
+            await using var jsonReader = new JsonTextReader(reader);
             var serializer = new JsonSerializer();
             var json = serializer.Deserialize<JObject>(jsonReader);
             var jsonData = json?["data"]?.ToString();

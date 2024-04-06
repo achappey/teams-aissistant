@@ -133,7 +133,7 @@ namespace TeamsAIssistant.Handlers.Plugins
         {
             if (turnState.CreateFunctionExports.HasValue && turnState.CreateFunctionExports.Value && replyId != null)
             {
-                var data = jsonContent.ConvertJsonToCsv();
+                var data = await jsonContent.ConvertJsonToCsv();
 
                 if (data != null)
                 {

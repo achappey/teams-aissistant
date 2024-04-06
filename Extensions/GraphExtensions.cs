@@ -108,7 +108,7 @@ namespace TeamsAIssistant.Extensions
 
         public static async Task<byte[]> GetDriveItemContent(this GraphServiceClient client, string driveId, string itemId)
         {
-            using var stream = await client.Drives[driveId].Items[itemId].Content
+            await using var stream = await client.Drives[driveId].Items[itemId].Content
                 .GetAsync();
 
             if (stream == null)
@@ -116,7 +116,7 @@ namespace TeamsAIssistant.Extensions
                 throw new InvalidOperationException("Stream cannot be null");
             }
 
-            using var memoryStream = new MemoryStream();
+            await using var memoryStream = new MemoryStream();
             await stream.CopyToAsync(memoryStream);
 
             return memoryStream.ToArray();

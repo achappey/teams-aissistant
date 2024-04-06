@@ -9,7 +9,7 @@ namespace TeamsAIssistant.Services;
 public class AzureStorageRepository : IStorage
 {
     private readonly BlobContainerClient _containerClient;
-    
+
     private readonly JsonSerializer _jsonSerializer;
 
     public AzureStorageRepository(string connectionString, string containerName)
@@ -31,7 +31,35 @@ public class AzureStorageRepository : IStorage
         foreach (var key in keys)
         {
             var blobClient = _containerClient.GetBlobClient(key);
-            
+
+            if (await blobClient.ExistsAsync(cancellationToken))
+            {
+                var response = await blobClient.DownloadAsync(cancellationToken);
+                await using var stream = response.Value.Content;
+                using var streamReader = new StreamReader(stream);
+                await using var jsonReader = new JsonTextReader(streamReader);
+                var jObject = await JObject.LoadAsync(jsonReader, cancellationToken);
+                var result = jObject.ToObject<object>(_jsonSerializer);
+
+                if (result != null)
+                {
+                    items[key] = result;
+                }
+            }
+        }
+
+        return items;
+    }
+
+
+/*
+    public async Task<IDictionary<string, object>> ReadAsync2(string[] keys, CancellationToken cancellationToken = default)
+    {
+        var items = new Dictionary<string, object>();
+        foreach (var key in keys)
+        {
+            var blobClient = _containerClient.GetBlobClient(key);
+
             if (await blobClient.ExistsAsync(cancellationToken))
             {
                 var response = await blobClient.DownloadAsync(cancellationToken);
@@ -49,26 +77,24 @@ public class AzureStorageRepository : IStorage
         }
 
         return items;
-    }
+    }*/
 
     public async Task WriteAsync(IDictionary<string, object> changes, CancellationToken cancellationToken = default)
     {
         foreach (var change in changes)
         {
+            if (change.Value == null) continue;
+
             var blobClient = _containerClient.GetBlobClient(change.Key);
+            var jObject = JObject.FromObject(change.Value, _jsonSerializer);
 
-            JObject? jObject = (change.Value != null) ? JObject.FromObject(change.Value, _jsonSerializer) : null;
-
-            if (jObject != null)
-            {
-                using var stream = new MemoryStream();
-                using var streamWriter = new StreamWriter(stream);
-                using var jsonWriter = new JsonTextWriter(streamWriter);
-                await jObject.WriteToAsync(jsonWriter, cancellationToken);
-                await jsonWriter.FlushAsync(cancellationToken);
-                stream.Position = 0;
-                await blobClient.UploadAsync(stream, overwrite: true, cancellationToken: cancellationToken);
-            }
+            await using var stream = new MemoryStream();
+            using var streamWriter = new StreamWriter(stream);
+            await using var jsonWriter = new JsonTextWriter(streamWriter);
+            await jObject.WriteToAsync(jsonWriter, cancellationToken);
+            await jsonWriter.FlushAsync(cancellationToken);
+            stream.Position = 0;
+            await blobClient.UploadAsync(stream, overwrite: true, cancellationToken: cancellationToken);
         }
     }
 

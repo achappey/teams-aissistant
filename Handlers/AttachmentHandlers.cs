@@ -125,7 +125,7 @@ namespace TeamsAIssistant.Handlers
         {
             var messages = turnState.ThreadId != null ? await _assistantService.GetThreadMessagesAsync(turnState.ThreadId) : [];
             var messageJson = JsonConvert.SerializeObject(messages);
-            var file = messageJson.ConvertJsonToCsv();
+            var file = await messageJson.ConvertJsonToCsv();
 
             if (file != null)
             {
